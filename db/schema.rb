@@ -11,7 +11,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160630133824) do
+ActiveRecord::Schema.define(version: 20160630193925) do
+
+  create_table "acronyms", force: :cascade do |t|
+    t.string   "acronym"
+    t.text     "context"
+    t.boolean  "bracketed"
+    t.boolean  "bracketed_on_first_use"
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
+  end
 
   create_table "documents", force: :cascade do |t|
     t.datetime "created_at", null: false

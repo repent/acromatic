@@ -1,0 +1,33 @@
+<%= form_for(@acronym) do |f| %>
+  <% if @acronym.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@acronym.errors.count, "error") %> prohibited this acronym from being saved:</h2>
+
+      <ul>
+      <% @acronym.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :acronym %><br>
+    <%= f.text_field :acronym %>
+  </div>
+  <div class="field">
+    <%= f.label :context %><br>
+    <%= f.text_area :context %>
+  </div>
+  <div class="field">
+    <%= f.label :bracketed %><br>
+    <%= f.check_box :bracketed %>
+  </div>
+  <div class="field">
+    <%= f.label :bracketed_on_first_use %><br>
+    <%= f.check_box :bracketed_on_first_use %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

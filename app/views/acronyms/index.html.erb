@@ -1,0 +1,33 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Listing Acronyms</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Acronym</th>
+      <th>Context</th>
+      <th>Bracketed</th>
+      <th>Bracketed on first use</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @acronyms.each do |acronym| %>
+      <tr>
+        <td><%= acronym.acronym %></td>
+        <td><%= acronym.context %></td>
+        <td><%= acronym.bracketed %></td>
+        <td><%= acronym.bracketed_on_first_use %></td>
+        <td><%= link_to 'Show', acronym %></td>
+        <td><%= link_to 'Edit', edit_acronym_path(acronym) %></td>
+        <td><%= link_to 'Destroy', acronym, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Acronym', new_acronym_path %>
