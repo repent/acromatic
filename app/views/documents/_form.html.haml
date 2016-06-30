@@ -1,4 +1,4 @@
-= form_for(@document) do |f|
+= form_for(@document, html: {multipart: true}) do |f|
   - if @document.errors.any?
     #error_explanation
       %h2
@@ -8,4 +8,6 @@
         - @document.errors.full_messages.each do |message|
           %li= message
   .actions
+    %p
+      = f.file_field :file
     = f.submit

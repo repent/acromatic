@@ -1,4 +1,8 @@
 %p#notice= notice
+- md = Redcarpet::Markdown.new(Redcarpet::Render::HTML.new({hard_wrap: true}))
+%p
+  =# HTML is probably NOT safe here
+  = md.render(File.readlines(@document.file.versions[:text].file.file) { |l| l }.join).html_safe
 = link_to 'Edit', edit_document_path(@document)
 |
 = link_to 'Back', documents_path

@@ -3,10 +3,11 @@
 %table
   %thead
     %tr
-      %th{:colspan => "3"}
+      %th{:colspan => "4"}
   %tbody
     - @documents.each do |document|
       %tr
+        %td= File.basename(document.file.to_s)
         %td= link_to 'Show', document
         %td= link_to 'Edit', edit_document_path(document)
         %td= link_to 'Destroy', document, method: :delete, data: { confirm: 'Are you sure?' }
