@@ -1,0 +1,22 @@
+%p#notice= notice
+%h1 Listing Acronyms
+%table
+  %thead
+    %tr
+      %th Acronym
+      %th Context
+      %th Bracketed
+      %th Bracketed on first use
+      %th{:colspan => "3"}
+  %tbody
+    - @acronyms.each do |acronym|
+      %tr
+        %td= acronym.acronym
+        %td= acronym.context
+        %td= acronym.bracketed
+        %td= acronym.bracketed_on_first_use
+        %td= link_to 'Show', acronym
+        %td= link_to 'Edit', edit_acronym_path(acronym)
+        %td= link_to 'Destroy', acronym, method: :delete, data: { confirm: 'Are you sure?' }
+%br/
+= link_to 'New Acronym', new_acronym_path

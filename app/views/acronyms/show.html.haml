@@ -1,0 +1,16 @@
+%p#notice= notice
+%p
+  %strong Acronym:
+  = @acronym.acronym
+%p
+  %strong Context:
+  = @acronym.context
+%p
+  %strong Bracketed:
+  = @acronym.bracketed
+%p
+  %strong Bracketed on first use:
+  = @acronym.bracketed_on_first_use
+= link_to 'Edit', edit_acronym_path(@acronym)
+|
+= link_to 'Back', acronyms_path

@@ -1,0 +1,27 @@
+= form_for(@acronym) do |f|
+  - if @acronym.errors.any?
+    #error_explanation
+      %h2
+        = pluralize(@acronym.errors.count, "error")
+        prohibited this acronym from being saved:
+      %ul
+        - @acronym.errors.full_messages.each do |message|
+          %li= message
+  .field
+    = f.label :acronym
+    %br/
+    = f.text_field :acronym
+  .field
+    = f.label :context
+    %br/
+    = f.text_area :context
+  .field
+    = f.label :bracketed
+    %br/
+    = f.check_box :bracketed
+  .field
+    = f.label :bracketed_on_first_use
+    %br/
+    = f.check_box :bracketed_on_first_use
+  .actions
+    = f.submit
