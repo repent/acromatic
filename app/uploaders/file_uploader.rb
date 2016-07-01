@@ -36,7 +36,7 @@ class FileUploader < CarrierWave::Uploader::Base
     File.rename current_path.sub(/docx$/, 'txt'), current_path
     # current_path.sub! /docx$/, 'txt'
     # model.file = file.file.sub 
-    binding.pry
+    # binding.pry
 
     # "Dummy document"
   end

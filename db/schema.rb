@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160630193925) do
+ActiveRecord::Schema.define(version: 20160701154020) do
 
   create_table "acronyms", force: :cascade do |t|
     t.string   "acronym"
@@ -20,7 +20,10 @@ ActiveRecord::Schema.define(version: 20160630193925) do
     t.boolean  "bracketed_on_first_use"
     t.datetime "created_at",             null: false
     t.datetime "updated_at",             null: false
+    t.integer  "document_id"
   end
+
+  add_index "acronyms", ["document_id"], name: "index_acronyms_on_document_id"
 
   create_table "documents", force: :cascade do |t|
     t.datetime "created_at", null: false

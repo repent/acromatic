@@ -19,6 +19,7 @@ class DocumentsController < ApplicationController
 
   # GET /documents/1/edit
   def edit
+    @document.sweep_acronyms
   end
 
   # POST /documents
