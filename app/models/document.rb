@@ -24,7 +24,7 @@ class Document < ActiveRecord::Base
       # context =~ /^[^\s]*\s(.*)\s[^\s]*$/
       # context = $1
       # context.gsub! ac, "**#{ac}**"
-      # bracketed = !!(text =~ /\(#{ac}\)/)
+      bracketed = !!(text =~ /\(#{ac}\)/)
       text =~ /.#{ac}./
       bracketed_on_first_use = ($1 == "(#{ac})")
       self.acronyms.push Acronym.create(initialism: ac, context: context, bracketed: bracketed,
