@@ -19,7 +19,6 @@ class DocumentsController < ApplicationController
 
   # GET /documents/1/edit
   def edit
-    @document.sweep_acronyms
   end
 
   # POST /documents
@@ -29,7 +28,10 @@ class DocumentsController < ApplicationController
 
     respond_to do |format|
       if @document.save
-        format.html { redirect_to @document, notice: 'Document was successfully created.' }
+        format.html do
+          @document.trawl
+          redirect_to @document, notice: 'Document was successfully created.'
+        end
         format.json { render :show, status: :created, location: @document }
       else
         format.html { render :new }

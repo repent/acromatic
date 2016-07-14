@@ -2,8 +2,9 @@ class Document < ActiveRecord::Base
   mount_uploader :file, FileUploader
   has_many :acronyms
 
-  def sweep_acronyms
+  CONTEXT = 100
 
+  def trawl
     # Grab the text version of this document
     text = File.readlines(self.file.versions[:text].file.file).join
     
@@ -14,17 +15,19 @@ class Document < ActiveRecord::Base
     pattern = /[A-Z]{2,}/
 
     text.scan(pattern) do |ac|
-      # puts ac
-      # binding.pry
       index = text =~ /#{ac}/
-      next unless self.acronyms.where(acronym: ac).empty? # skip if already recorded
-      start = (index - 50) < 0 ? 0 : index - 50
-      finish = (index + 50) > text.length ? text.length : index + 50
+      next unless self.acronyms.where(initialism: ac).empty? # skip if already recorded
+      start = (index - CONTEXT) < 0 ? 0 : index - CONTEXT
+      finish = (index + CONTEXT) > text.length ? text.length : index + CONTEXT
+      # Would be nice to make the acronym stand out in the context, even if just usind md *s
       context = text[start...finish]
-      bracketed = !!(text =~ /\(#{ac}\)/)
+      # context =~ /^[^\s]*\s(.*)\s[^\s]*$/
+      # context = $1
+      # context.gsub! ac, "**#{ac}**"
+      # bracketed = !!(text =~ /\(#{ac}\)/)
       text =~ /.#{ac}./
       bracketed_on_first_use = ($1 == "(#{ac})")
-      self.acronyms.push Acronym.create(acronym: ac, context: context, bracketed: bracketed,
+      self.acronyms.push Acronym.create(initialism: ac, context: context, bracketed: bracketed,
         bracketed_on_first_use: bracketed_on_first_use)
     end
 

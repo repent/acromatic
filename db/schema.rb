@@ -11,10 +11,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160701154020) do
+ActiveRecord::Schema.define(version: 20160701184543) do
 
   create_table "acronyms", force: :cascade do |t|
-    t.string   "acronym"
+    t.string   "initialism"
     t.text     "context"
     t.boolean  "bracketed"
     t.boolean  "bracketed_on_first_use"
