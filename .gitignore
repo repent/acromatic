@@ -18,6 +18,5 @@
 
 
 /public/uploads
-/config/secrets.yml
 /vendor/bundle
 /bin
