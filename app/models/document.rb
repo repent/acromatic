@@ -2,7 +2,7 @@ class Document < ActiveRecord::Base
   mount_uploader :file, FileUploader
   has_many :acronyms
 
-  CONTEXT = 100
+  CONTEXT = 60
 
   def trawl
     # Grab the text version of this document
@@ -12,15 +12,90 @@ class Document < ActiveRecord::Base
     # text.scan(/[A-Z]{2,}/) do |ac|
     #   acronyms.push ac
     # end
-    pattern = /[A-Z]{2,}/
+    pattern = /\b[A-Z]{2,}\b/
+
+    internal_lowercase,plurals,hyphens,numbers=false,false,false,false
+
+    pattern =
+    if internal_lowercase
+      if plurals
+        if hyphens
+          if numbers
+            /\b[A-Z,0-9,-][A-z,0-9,-]+[A-Z,0-9,-](s)?\b/
+          else
+            /\b[A-Z,-][A-z,-]+[A-Z,-](s)?\b/
+          end
+        else
+          if numbers
+            /\b[A-Z,0-9][A-z,0-9]+[A-Z,0-9](s)?\b/
+          else
+            /\b[A-Z][A-Z]+[A-Z](s)?\b/
+          end
+        end
+      else
+        if hyphens
+          if numbers
+            /\b[A-Z,0-9,-][A-z,0-9,-]+[A-Z,0-9,-]\b/
+          else
+            /\b[A-Z,-][A-z,-]?[A-Z,-]\b/
+          end
+        else
+          if numbers
+            /\b[A-Z,0-9][A-z,0-9]+[A-Z,0-9]\b/
+          else
+            /\b[A-Z][A-z]+[A-Z]\b/
+          end
+        end
+      end
+    else
+      if plurals
+        if hyphens
+          if numbers
+            /\b[A-Z,0-9,-](s)?{2,}\b/
+          else
+            /\b[A-Z,-]{2,}(s)?\b/
+          end
+        else
+          if numbers
+            /\b[A-Z,0-9]{2,}(s)?\b/
+          else
+            /\b[A-Z]{2,}(s)?\b/
+          end
+        end
+      else
+        if hyphens
+          if numbers
+            /\b[A-Z,0-9,-]{2,}\b/
+          else
+            /\b[A-Z,-]{2,}\b/
+          end
+        else
+          if numbers
+            /\b[A-Z,0-9]{2,}\b/
+          else
+            /\b[A-Z]{2,}\b/
+          end
+        end
+      end
+    end
 
     text.scan(pattern) do |ac|
-      index = text =~ /#{ac}/
+      # To do (here and above):
+      #   Allow rescanning with different parsing options:
+      #    ending in s (TORs)
+      #    internal lower case (AusAID)
+      #    internal hyphen (BIG-T)
+      #    numbers (BICF2)
+
+      index = text =~ /\b#{ac}(s)?\b/
+      raise "#{index} not found" unless index
       next unless self.acronyms.where(initialism: ac).empty? # skip if already recorded
       start = (index - CONTEXT) < 0 ? 0 : index - CONTEXT
       finish = (index + CONTEXT) > text.length ? text.length : index + CONTEXT
-      # Would be nice to make the acronym stand out in the context, even if just usind md *s
       context = text[start...finish]
+
+      # Would be nice to make the acronym stand out in the context, even if just usind md *s
+      context = "#{$`.last(CONTEXT)}<span class=\"acronym\">#{$~}</span>#{$'.first(CONTEXT)}"
       # context =~ /^[^\s]*\s(.*)\s[^\s]*$/
       # context = $1
       # context.gsub! ac, "**#{ac}**"

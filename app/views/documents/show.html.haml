@@ -1,30 +1,31 @@
-%p#notice= notice
-
-- md = Redcarpet::Markdown.new(Redcarpet::Render::HTML.new({hard_wrap: true}))
-
-%h1 Acronym list to paste
-%textarea{rows: @document.acronyms.length, cols: 60}
-  - @document.acronyms.sort.each do |ac|
-    =# Figure out the widgh and height of the textbox from the acronym list
-    = find_and_preserve "#{ac.initialism}\t&#x000A;"
-
-%h1 Context on each acronym
-%table
-  %thead
-    %tr
-      %th Acronym
-      %th Context
-  %tbody
+%center
+  %p#notice= notice
+  
+  - md = Redcarpet::Markdown.new(Redcarpet::Render::HTML.new({hard_wrap: true}))
+  
+  %h1 Acronym list to paste
+  =# Don't place comments in the textarea -- it screws up the whitespace
+  %textarea{rows: @document.acronyms.length, cols: 60}
     - @document.acronyms.sort.each do |ac|
+      = find_and_preserve "#{ac.initialism}\t&#x000A;"
+  
+  %h1 Context on each acronym
+  %table
+    %thead
       %tr
-        %td= ac.initialism
-        %td= ac.context
-
-/ %h1 Full text of document
-/ # =# HTML is probably NOT safe here
-/ # = md.render(File.readlines(@document.file.versions[:text].file.file) { |l| l }.join).html_safe
-
-=# link_to 'Edit', edit_document_path(@document)
-=# link_to 'Back', documents_path
-
-= link_to 'Upload another document', new_document_path
+        %th Acronym
+        %th Context
+    %tbody
+      - @document.acronyms.sort.each do |ac|
+        %tr
+          %td= ac.initialism
+          %td= ac.context.html_safe
+  
+  / %h1 Full text of document
+  / # =# HTML is probably NOT safe here
+  / # = md.render(File.readlines(@document.file.versions[:text].file.file) { |l| l }.join).html_safe
+  
+  =# link_to 'Edit', edit_document_path(@document)
+  =# link_to 'Back', documents_path
+  
+  = link_to 'Upload another document', new_document_path
