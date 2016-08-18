@@ -32,6 +32,7 @@ class FileUploader < CarrierWave::Uploader::Base
   # end
 
   def to_text
+    raise "docx2txt has not been installed" unless system('which docx2txt')
     `docx2txt #{current_path}`
     File.rename current_path.sub(/docx$/, 'txt'), current_path
     # current_path.sub! /docx$/, 'txt'
