@@ -16,7 +16,7 @@
 !/log/.keep
 /tmp
 
-
-/public/uploads
-/vendor/bundle
+/vendor
+/public
 /bin
+/config/local_env.yml
