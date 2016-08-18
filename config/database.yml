@@ -21,9 +21,11 @@ test:
   database: db/test.sqlite3
 
 production:
-  <<: *default
-  database: db/production.sqlite3
-
-  # adapter: mysql2
-  # encoding: utf8
-  # database: acromatic_production
+  adapter: mysql2
+  encoding: utf8
+  database: acromatic_production
+  reconnect: false
+  pool: 5
+  username: slack
+  password: AhPNj9ZE2u5QI
+  host: localhost
