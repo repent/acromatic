@@ -1,6 +1,8 @@
 # config valid only for current version of Capistrano
 lock '3.6.0'
 
+set :rbenv_ruby, File.read('.ruby-version').strip
+
 set :application, 'acromatic'
 set :repo_url, 'git@github.com:repent/acromatic.git'
 

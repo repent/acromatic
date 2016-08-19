@@ -39,7 +39,8 @@ gem 'redcarpet'
 # Use Unicorn as the app server
 # gem 'unicorn'
 
-
+gem 'pry'
+gem 'pry-rails'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
@@ -54,8 +55,6 @@ group :development do
   gem 'spring'
 
   gem 'erb2haml'
-  gem 'pry'
-  gem 'pry-rails'
   gem 'awesome_print'
   # gem 'rmagick'
   gem 'mini_magick'
