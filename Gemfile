@@ -41,6 +41,8 @@ gem 'redcarpet'
 
 gem 'pry'
 gem 'pry-rails'
+# gem 'rmagick'
+gem 'mini_magick'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
@@ -56,8 +58,6 @@ group :development do
 
   gem 'erb2haml'
   gem 'awesome_print'
-  # gem 'rmagick'
-  gem 'mini_magick'
 
   # Use Capistrano for deployment
   gem 'capistrano-rails'
