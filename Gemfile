@@ -59,9 +59,13 @@ group :development do
   gem 'erb2haml'
   gem 'awesome_print'
 
+  # Adds detail on the database schema to the top of model descriptions
+  # Usage: annotate
+  gem 'annotate'
+
   # Use Capistrano for deployment
-  gem 'capistrano-rails'
-  gem 'capistrano-rbenv'
-  gem 'capistrano-bundler'
-  gem 'capistrano-passenger'
+  #gem 'capistrano-rails'
+  #gem 'capistrano-rbenv'
+  #gem 'capistrano-bundler'
+  #gem 'capistrano-passenger'
 end

@@ -1,3 +1,13 @@
+# == Schema Information
+#
+# Table name: documents
+#
+#  id         :integer          not null, primary key
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#  file       :string
+#
+
 class Document < ActiveRecord::Base
   mount_uploader :file, FileUploader
   has_many :acronyms
