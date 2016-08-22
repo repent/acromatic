@@ -2,10 +2,14 @@
 #
 # Table name: documents
 #
-#  id         :integer          not null, primary key
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
-#  file       :string
+#  id              :integer          not null, primary key
+#  created_at      :datetime         not null
+#  updated_at      :datetime         not null
+#  file            :string
+#  allow_mixedcase :boolean          default(FALSE)
+#  allow_plurals   :boolean          default(FALSE)
+#  allow_hyphens   :boolean          default(FALSE)
+#  allow_numbers   :boolean          default(FALSE)
 #
 
 class Document < ActiveRecord::Base
@@ -22,74 +26,14 @@ class Document < ActiveRecord::Base
     # text.scan(/[A-Z]{2,}/) do |ac|
     #   acronyms.push ac
     # end
-    pattern = /\b[A-Z]{2,}\b/
-
-    internal_lowercase,plurals,hyphens,numbers=false,false,false,false
-
-    pattern =
-    if internal_lowercase
-      if plurals
-        if hyphens
-          if numbers
-            /\b[A-Z,0-9,-][A-z,0-9,-]+[A-Z,0-9,-](s)?\b/
-          else
-            /\b[A-Z,-][A-z,-]+[A-Z,-](s)?\b/
-          end
-        else
-          if numbers
-            /\b[A-Z,0-9][A-z,0-9]+[A-Z,0-9](s)?\b/
-          else
-            /\b[A-Z][A-Z]+[A-Z](s)?\b/
-          end
-        end
-      else
-        if hyphens
-          if numbers
-            /\b[A-Z,0-9,-][A-z,0-9,-]+[A-Z,0-9,-]\b/
-          else
-            /\b[A-Z,-][A-z,-]?[A-Z,-]\b/
-          end
-        else
-          if numbers
-            /\b[A-Z,0-9][A-z,0-9]+[A-Z,0-9]\b/
-          else
-            /\b[A-Z][A-z]+[A-Z]\b/
-          end
-        end
-      end
-    else
-      if plurals
-        if hyphens
-          if numbers
-            /\b[A-Z,0-9,-](s)?{2,}\b/
-          else
-            /\b[A-Z,-]{2,}(s)?\b/
-          end
-        else
-          if numbers
-            /\b[A-Z,0-9]{2,}(s)?\b/
-          else
-            /\b[A-Z]{2,}(s)?\b/
-          end
-        end
-      else
-        if hyphens
-          if numbers
-            /\b[A-Z,0-9,-]{2,}\b/
-          else
-            /\b[A-Z,-]{2,}\b/
-          end
-        else
-          if numbers
-            /\b[A-Z,0-9]{2,}\b/
-          else
-            /\b[A-Z]{2,}\b/
-          end
-        end
-      end
-    end
+    #pattern = /\b[A-Z]{2,}\b/ # restrictive
+    pattern = /\b([A-Z,0-9][A-z,0-9,-]+[A-Z,0-9](s)?)\b/ # liberal
+    #internal_lowercase,plurals,hyphens,numbers=false,false,false,false
 
     text.scan(pattern) do |ac|
+      # if pattern contains grouts (with parentheses) then each ac will be an array
+      ac = ac[0]
+
       # To do (here and above):
       #   Allow rescanning with different parsing options:
       #    ending in s (TORs)
@@ -97,8 +41,11 @@ class Document < ActiveRecord::Base
       #    internal hyphen (BIG-T)
       #    numbers (BICF2)
 
-      index = text =~ /\b#{ac}(s)?\b/
-      raise "#{index} not found" unless index
+      #binding.pry
+
+      # May want to allow plurals here even if they are not generally allowed?
+      index = text =~ /\b#{ac}\b/
+      raise "#{ac} not found" unless index
       next unless self.acronyms.where(initialism: ac).empty? # skip if already recorded
       start = (index - CONTEXT) < 0 ? 0 : index - CONTEXT
       finish = (index + CONTEXT) > text.length ? text.length : index + CONTEXT
@@ -129,5 +76,9 @@ class Document < ActiveRecord::Base
     #   puts "#{ac}#{star}"
     # end
   end
-
+  
+  # acronyms returns everything, this filters with document settings
+  def allowed_acronyms
+    acronyms.select {|ac| ac.allowed? }
+  end
 end

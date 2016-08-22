@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160701184543) do
+ActiveRecord::Schema.define(version: 20160822154321) do
 
   create_table "acronyms", force: :cascade do |t|
     t.string   "initialism"
@@ -26,9 +26,13 @@ ActiveRecord::Schema.define(version: 20160701184543) do
   add_index "acronyms", ["document_id"], name: "index_acronyms_on_document_id"
 
   create_table "documents", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",                      null: false
+    t.datetime "updated_at",                      null: false
     t.string   "file"
+    t.boolean  "allow_mixedcase", default: false
+    t.boolean  "allow_plurals",   default: false
+    t.boolean  "allow_hyphens",   default: false
+    t.boolean  "allow_numbers",   default: false
   end
 
 end

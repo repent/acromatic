@@ -6,8 +6,21 @@
   %h1 Acronym list to paste
   =# Don't place comments in the textarea -- it screws up the whitespace
   %textarea{rows: @document.acronyms.length, cols: 60}
-    - @document.acronyms.sort.each do |ac|
+    - @document.allowed_acronyms.sort.each do |ac|
       = find_and_preserve "#{ac.initialism}\t&#x000A;"
+
+  %h1 Options
+  = form_for(@document) do |f|
+    %p
+      = f.label :allow_mixedcase
+      = f.check_box :allow_mixedcase
+      = f.label :allow_plurals
+      = f.check_box :allow_plurals
+      = f.label :allow_hyphens
+      = f.check_box :allow_hyphens
+      = f.label :allow_numbers
+      = f.check_box :allow_numbers
+    = f.submit "Refresh"
   
   %h1 Context on each acronym
   %table
@@ -16,7 +29,7 @@
         %th Acronym
         %th Context
     %tbody
-      - @document.acronyms.sort.each do |ac|
+      - @document.allowed_acronyms.sort.each do |ac|
         %tr
           %td= ac.initialism
           %td= ac.context.html_safe
