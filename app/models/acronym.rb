@@ -28,7 +28,8 @@ class Acronym < ActiveRecord::Base
   end
 
   def mixedcase?
-    self.initialism =~ /[a-z]/
+    # If mixed case is banned but plurals are allowed, the acronym should be permitted to end in 's'
+    self.initialism =~ /[a-z]/ and !(self.initialism =~ /[A-Z,0-9][A-Z,0-9,-]+[A-Z,0-9]s$/)
   end
   def plurals?
     self.initialism =~ /s$/
