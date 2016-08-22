@@ -28,7 +28,8 @@
 rerun.txt
 pickle-email-*.html
 /config/local_env.yml
-/config/secrets.yml
+#/config/secrets.yml
+.rbenv-vars
 
 .byebug_history
 
