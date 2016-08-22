@@ -58,4 +58,5 @@ Rails.application.routes.draw do
 
   # Static content
   get ':action' => 'static#:action'
+  #get ':static' => 'static#:action'
 end

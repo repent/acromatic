@@ -17,4 +17,13 @@
 body {
   font-family: "Avenir Next W01", Arial, "sans-serif";
   font-size: 12;
+  text-align: justify;
+}
+
+h1 {
+  text-align: center;
+}
+
+td {
+  text-align: justify;
 }
