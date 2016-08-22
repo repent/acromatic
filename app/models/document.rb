@@ -15,6 +15,7 @@
 class Document < ActiveRecord::Base
   mount_uploader :file, FileUploader
   has_many :acronyms
+  validates :file, presence: true
 
   CONTEXT = 60
 
