@@ -83,4 +83,8 @@ class Document < ActiveRecord::Base
   def allowed_acronyms
     acronyms.select {|ac| ac.allowed? }
   end
+
+  def acronym_count # .acronyms.length gives all acronyms, including those that have been excluded
+    acronyms.collect{ |a| a.allowed? }.count(true)
+  end
 end
