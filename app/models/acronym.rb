@@ -40,12 +40,16 @@ class Acronym < ActiveRecord::Base
   def numbers?
     self.initialism =~ /[0-9]/
   end
+  def short?
+    self.initialism.length == 2
+  end
 
   def allowed?() # allow_mixedcase: false, allow_plurals: false, allow_hyphens: false, allow_numbers: false)
     if ( ( !document.allow_mixedcase and mixedcase? ) ||
          ( !document.allow_plurals   and plurals?   ) ||
          ( !document.allow_hyphens   and hyphens?   ) ||
-         ( !document.allow_numbers   and numbers?   ) )
+         ( !document.allow_numbers   and numbers?   ) ||
+         ( !document.allow_short     and short?    ))
       return false
     else
       return true

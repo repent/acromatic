@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160822154321) do
+ActiveRecord::Schema.define(version: 20170203180347) do
 
   create_table "acronyms", force: :cascade do |t|
     t.string   "initialism"
@@ -33,6 +33,7 @@ ActiveRecord::Schema.define(version: 20160822154321) do
     t.boolean  "allow_plurals",   default: false
     t.boolean  "allow_hyphens",   default: false
     t.boolean  "allow_numbers",   default: false
+    t.boolean  "allow_short"
   end
 
 end

@@ -28,7 +28,8 @@ class Document < ActiveRecord::Base
     #   acronyms.push ac
     # end
     #pattern = /\b[A-Z]{2,}\b/ # restrictive
-    pattern = /\b([A-Z,0-9][A-z,0-9,-]+[A-Z,0-9](s)?)\b/ # liberal
+    #pattern = /\b([A-Z,0-9][A-z,0-9,-]+[A-Z,0-9](s)?)\b/ # liberal, 3-letter minimum
+    pattern = /\b([A-Z,0-9][A-z,0-9,-]*[A-Z,0-9](s)?)\b/ # liberal, 3-letter minimum
     #internal_lowercase,plurals,hyphens,numbers=false,false,false,false
 
     text.scan(pattern) do |ac|
