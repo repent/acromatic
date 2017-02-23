@@ -55,6 +55,20 @@ class Acronym < ActiveRecord::Base
       return true
     end
   end
+
+  def context(options={}) # now a fake attribute, made of context_before, context_after and sugar
+    central_text = initialism
+    if options[:search_link] then central_text = search_link end
+    if options[:css] then central_text = '<span class="acronym">' + central_text + '</span>' end
+    context_before + central_text + context_after
+  end
+
+  private
+  def search_link(text=self.initialism)
+    # www.acronymfinder.com/#{initialism}.html
+    # acronyms.thefreedictionary.com/#{initialism}
+    %Q{<a href="https://duckduckgo.com/?q=#{initialism}" target="_blank">#{text}</a>}
+  end
 end
 
 #    pattern =

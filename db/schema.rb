@@ -11,16 +11,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170203180347) do
+ActiveRecord::Schema.define(version: 20170223172616) do
 
   create_table "acronyms", force: :cascade do |t|
     t.string   "initialism"
-    t.text     "context"
     t.boolean  "bracketed"
     t.boolean  "bracketed_on_first_use"
     t.datetime "created_at",             null: false
     t.datetime "updated_at",             null: false
     t.integer  "document_id"
+    t.text     "context_before"
+    t.text     "context_after"
   end
 
   add_index "acronyms", ["document_id"], name: "index_acronyms_on_document_id"

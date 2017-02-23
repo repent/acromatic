@@ -34,7 +34,7 @@
       - @document.allowed_acronyms.sort.each do |ac|
         %tr
           %td= ac.initialism
-          %td= ac.context.html_safe
+          %td= ac.context( { css: true, search_link: true } ).html_safe
   
   / %h1 Full text of document
   / # =# HTML is probably NOT safe here
