@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  resources :definitions
+  resources :dictionaries
   resources :acronyms
   resources :documents
   # The priority is based upon order of creation: first created -> highest priority.
