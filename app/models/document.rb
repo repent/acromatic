@@ -10,7 +10,10 @@
 #  allow_plurals   :boolean          default(FALSE)
 #  allow_hyphens   :boolean          default(FALSE)
 #  allow_numbers   :boolean          default(FALSE)
+#  allow_short     :boolean
 #
+
+# to refresh run annotate
 
 class Document < ActiveRecord::Base
   mount_uploader :file, FileUploader
@@ -105,4 +108,9 @@ class Document < ActiveRecord::Base
   def acronym_count # .acronyms.length gives all acronyms, including those that have been excluded
     acronyms.collect{ |a| a.allowed? }.count(true)
   end
+
+  #def find_definition(ac)
+  #  search_term = Regexp.new ac.chars.collect{ |c| "#{c}\w?" }.join('\s')
+  #  all = search_term.match(text).to_a
+  #end
 end

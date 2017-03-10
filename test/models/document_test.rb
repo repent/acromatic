@@ -10,6 +10,7 @@
 #  allow_plurals   :boolean          default(FALSE)
 #  allow_hyphens   :boolean          default(FALSE)
 #  allow_numbers   :boolean          default(FALSE)
+#  allow_short     :boolean
 #
 
 require 'test_helper'

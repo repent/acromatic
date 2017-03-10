@@ -4,13 +4,16 @@
 #
 #  id                     :integer          not null, primary key
 #  initialism             :string
-#  context                :text
 #  bracketed              :boolean
 #  bracketed_on_first_use :boolean
 #  created_at             :datetime         not null
 #  updated_at             :datetime         not null
 #  document_id            :integer
+#  context_before         :text
+#  context_after          :text
 #
+
+# to refresh run annotate
 
 class Acronym < ActiveRecord::Base
   belongs_to :document
@@ -69,6 +72,10 @@ class Acronym < ActiveRecord::Base
     # acronyms.thefreedictionary.com/#{initialism}
     %Q{<a href="https://duckduckgo.com/?q=#{initialism}" target="_blank">#{text}</a>}
   end
+
+  #def find_definition_of(ac)
+  #  search_term = Regexp.new 
+  #end
 end
 
 #    pattern =
