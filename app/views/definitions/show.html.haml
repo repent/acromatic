@@ -1,0 +1,10 @@
+%p#notice= notice
+%p
+  %strong Dictionary:
+  = @definition.dictionary
+%p
+  %strong Initialism:
+  = @definition.initialism
+= link_to 'Edit', edit_definition_path(@definition)
+|
+= link_to 'Back', definitions_path
