@@ -69,6 +69,7 @@ class AcronymsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def acronym_params
-      params.require(:acronym).permit(:acronym, :context, :bracketed, :bracketed_on_first_use)
+      params.require(:acronym).permit(:acronym, :context, :bracketed, :bracketed_on_first_use,
+        :meaning)
     end
 end

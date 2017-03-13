@@ -1,5 +1,4 @@
 %center
-  %p#notice= notice
   
   - md = Redcarpet::Markdown.new(Redcarpet::Render::HTML.new({hard_wrap: true}))
   
@@ -7,22 +6,13 @@
   =# Don't place comments in the textarea -- it screws up the whitespace
   %textarea{rows: @document.acronym_count, cols: 60}
     - @document.allowed_acronyms.sort.each do |ac|
-      = find_and_preserve "#{ac.initialism}\t&#x000A;"
+      = find_and_preserve "#{ac.initialism}\t#{ac.meaning}&#x000A;"
 
   %h1 Options
   = form_for(@document) do |f|
     %p
-      = f.label :allow_mixedcase
-      = f.check_box :allow_mixedcase
-      = f.label :allow_plurals
-      = f.check_box :allow_plurals
-      = f.label :allow_hyphens
-      = f.check_box :allow_hyphens
-      = f.label :allow_numbers
-      = f.check_box :allow_numbers
-      = f.label :allow_short, "Allow 2-letter acronyms"
-      = f.check_box :allow_short
-    = f.submit "Refresh"
+      = render partial: 'options', locals: {f: f}
+      = f.submit "Refresh"
   
   %h1 Context on each acronym
   %table
@@ -34,7 +24,10 @@
       - @document.allowed_acronyms.sort.each do |ac|
         %tr
           %td= ac.initialism
-          %td= ac.context( { css: true, search_link: true } ).html_safe
+          - if ac.meaning?
+            %td#strikethrough= ac.context( { css: true, search_link: true } ).html_safe
+          - else
+            %td= ac.context( { css: true, search_link: true } ).html_safe
   
   / %h1 Full text of document
   / # =# HTML is probably NOT safe here

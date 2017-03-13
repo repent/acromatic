@@ -11,6 +11,7 @@
 #  allow_hyphens   :boolean          default(FALSE)
 #  allow_numbers   :boolean          default(FALSE)
 #  allow_short     :boolean
+#  dictionary      :has_one
 #
 
 # to refresh run annotate
@@ -18,6 +19,7 @@
 class Document < ActiveRecord::Base
   mount_uploader :file, FileUploader
   has_many :acronyms
+  belongs_to :dictionary
   validates :file, presence: true
 
   CONTEXT = 60
@@ -77,13 +79,16 @@ class Document < ActiveRecord::Base
       text =~ /.#{ac}./
       bracketed_on_first_use = ($1 == "(#{ac})")
 
+      #binding.pry
+      meaning = dictionary.lookup(ac)
+
       # Create Acronym
       # Old
       #self.acronyms.push Acronym.create(initialism: ac, context: context, bracketed: bracketed,
       #  bracketed_on_first_use: bracketed_on_first_use)
       # New
       self.acronyms.push Acronym.create(initialism: ac, context_before: context_before, context_after: context_after, bracketed: bracketed,
-        bracketed_on_first_use: bracketed_on_first_use)
+        bracketed_on_first_use: bracketed_on_first_use, meaning: meaning)
     end
 
     # acronyms.uniq!
@@ -108,6 +113,10 @@ class Document < ActiveRecord::Base
   def acronym_count # .acronyms.length gives all acronyms, including those that have been excluded
     acronyms.collect{ |a| a.allowed? }.count(true)
   end
+
+  #def dictionary_id
+  #  dictionary.id
+  #end
 
   #def find_definition(ac)
   #  search_term = Regexp.new ac.chars.collect{ |c| "#{c}\w?" }.join('\s')

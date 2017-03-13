@@ -10,4 +10,34 @@
 
 class Dictionary < ActiveRecord::Base
   has_many :definitions
+  has_many :documents
+  DELIMITER = /[\t\,\;]/
+
+  def include?(initialism)
+    definitions.to_a.include? initialism
+  end
+  def to_s
+    name
+  end
+
+  def lookup(initialism)
+    # Returns zero or one result
+    definition = definitions.find_by initialism: initialism
+    definition ? definition.meaning : nil
+  end
+
+  # quick_add is a pseudo-field in dictionaries
+  # "Get" quick_add field -- i.e. what to put in the form's text_area (nothing)
+  def quick_add; end
+  
+  def quick_add=(data)
+    data.lines.collect {|l| l.strip }.each do |def_line|
+      if def_line =~ DELIMITER
+        initialism,meaning = def_line.split DELIMITER
+        unless include? initialism
+          definitions.push Definition.new( initialism: initialism.strip, meaning: meaning.strip )
+        end
+      end
+    end
+  end
 end

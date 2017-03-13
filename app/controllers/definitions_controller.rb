@@ -1,5 +1,6 @@
 class DefinitionsController < ApplicationController
   before_action :set_definition, only: [:show, :edit, :update, :destroy]
+  before_action :authenticate_user!
 
   # GET /definitions
   # GET /definitions.json
@@ -54,9 +55,10 @@ class DefinitionsController < ApplicationController
   # DELETE /definitions/1
   # DELETE /definitions/1.json
   def destroy
+    dictionary = @definition.dictionary
     @definition.destroy
     respond_to do |format|
-      format.html { redirect_to definitions_url, notice: 'Definition was successfully destroyed.' }
+      format.html { redirect_to dictionary_url(dictionary.id), notice: 'Definition was successfully destroyed.' }
       format.json { head :no_content }
     end
   end
@@ -69,6 +71,6 @@ class DefinitionsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def definition_params
-      params.require(:definition).permit(:dictionary_id, :initialism)
+      params.require(:definition).permit(:dictionary_id, :initialism, :meaning)
     end
 end

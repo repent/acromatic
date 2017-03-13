@@ -1,5 +1,6 @@
 class DictionariesController < ApplicationController
   before_action :set_dictionary, only: [:show, :edit, :update, :destroy]
+  before_action :authenticate_user!
 
   # GET /dictionaries
   # GET /dictionaries.json
@@ -15,10 +16,12 @@ class DictionariesController < ApplicationController
   # GET /dictionaries/new
   def new
     @dictionary = Dictionary.new
+    #add_definitions(dictionary_params)
   end
 
   # GET /dictionaries/1/edit
   def edit
+    #add_definitions(dictionary_params)
   end
 
   # POST /dictionaries
@@ -69,6 +72,6 @@ class DictionariesController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def dictionary_params
-      params.require(:dictionary).permit(:name)
+      params.require(:dictionary).permit(:name, :quick_add)
     end
 end

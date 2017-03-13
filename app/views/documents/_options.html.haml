@@ -1,0 +1,14 @@
+%p
+  = f.label :allow_mixedcase
+  = f.check_box :allow_mixedcase
+  = f.label :allow_plurals
+  = f.check_box :allow_plurals
+  = f.label :allow_hyphens
+  = f.check_box :allow_hyphens
+  = f.label :allow_numbers
+  = f.check_box :allow_numbers
+  = f.label :allow_short, "Allow 2-letter acronyms"
+  = f.check_box :allow_short
+%p
+  = f.label :dictionary, "Select predefined dictionary"
+  = f.collection_select(:dictionary_id, Dictionary.order(:name), :id, :name, include_blank: true)

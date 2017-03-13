@@ -1,3 +1,7 @@
+# 3/17
+
+Add dictionaries and definitions
+
 # 2/17
 
 Add support for 2-letter acronyms

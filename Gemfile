@@ -44,6 +44,9 @@ gem 'pry-rails'
 # gem 'rmagick'
 gem 'mini_magick'
 
+# User authentication
+gem 'devise'
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug'

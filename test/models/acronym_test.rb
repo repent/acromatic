@@ -11,6 +11,7 @@
 #  document_id            :integer
 #  context_before         :text
 #  context_after          :text
+#  meaning                :string
 #
 
 require 'test_helper'

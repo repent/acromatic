@@ -11,6 +11,7 @@
 #  document_id            :integer
 #  context_before         :text
 #  context_after          :text
+#  meaning                :string
 #
 
 # to refresh run annotate
@@ -28,6 +29,14 @@ class Acronym < ActiveRecord::Base
   # end
   def <=>(other)
     self.initialism.to_s <=> other.initialism.to_s
+  end
+  # Return blank string rather than nil
+  # This creates an infinite loop, obviously
+  #ef meaning
+  # meaning || ''
+  #nd
+  def meaning?
+    !!meaning
   end
 
   def mixedcase?

@@ -11,6 +11,7 @@
 #  allow_hyphens   :boolean          default(FALSE)
 #  allow_numbers   :boolean          default(FALSE)
 #  allow_short     :boolean
+#  dictionary      :has_one
 #
 
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
