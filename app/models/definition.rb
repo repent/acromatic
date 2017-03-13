@@ -17,8 +17,8 @@ class Definition < ActiveRecord::Base
   validates :meaning, length: {minimum: 2}
   validates :dictionary, presence: true
 
-  def ==(other)
-    initialism.to_s.downcase == other.to_s.downcase
+  def <=>(other)
+    initialism.to_s.downcase <=> other.to_s.downcase
   end
   def to_s
     initialism
