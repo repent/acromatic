@@ -11,7 +11,8 @@
 class Dictionary < ActiveRecord::Base
   has_many :definitions
   has_many :documents
-  DELIMITER = /[\t\,\;]/
+  # Don't use commas because of definitions like ACP: Africa, Caribbean and Pacific group of countries
+  DELIMITER = /[\t\;]/
 
   def include?(initialism)
     definitions.to_a.include? initialism
