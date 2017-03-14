@@ -1,6 +1,7 @@
 # 3/17
 
 Add dictionaries and definitions
+Add single-user mode using devise (email config not sorted and can't be public)
 
 # 2/17
 

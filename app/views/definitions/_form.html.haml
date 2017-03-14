@@ -10,10 +10,14 @@
   .field
     = f.label :dictionary_id
     %br/
-    = f.text_field :dictionary_id
+    = f.collection_select(:dictionary_id, Dictionary.order(:name), :id, :name, include_blank: true)
   .field
     = f.label :initialism
     %br/
-    = f.text_field :initialism
+    = f.text_field :initialism, size: 50
+  .field
+    = f.label :meaning
+    %br/
+    = f.text_field :meaning, size: 50
   .actions
     = f.submit
