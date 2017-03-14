@@ -35,6 +35,14 @@ class Acronym < ActiveRecord::Base
   #ef meaning
   # meaning || ''
   #nd
+  # Now a pseudo-field, generated on demand using the current dictionary
+  def meaning
+    if document and document.dictionary
+      document.dictionary.lookup(initialism)
+    else
+      nil
+    end
+  end
   def meaning?
     !!meaning
   end

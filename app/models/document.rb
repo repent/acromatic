@@ -80,7 +80,11 @@ class Document < ActiveRecord::Base
       bracketed_on_first_use = ($1 == "(#{ac})")
 
       #binding.pry
-      meaning = dictionary ? dictionary.lookup(ac) : nil
+      # Perhaps this should be done on display rather on "trawl" --
+      # then the dictionary can be changed after the document has been uploaded
+      # Perhaps better for "meaning" not to be a db field of an acronym but a pseudo
+      # built on demand from the current dictionary
+      #meaning = dictionary ? dictionary.lookup(ac) : nil
 
       # Create Acronym
       # Old
@@ -88,7 +92,7 @@ class Document < ActiveRecord::Base
       #  bracketed_on_first_use: bracketed_on_first_use)
       # New
       self.acronyms.push Acronym.create(initialism: ac, context_before: context_before, context_after: context_after, bracketed: bracketed,
-        bracketed_on_first_use: bracketed_on_first_use, meaning: meaning)
+        bracketed_on_first_use: bracketed_on_first_use )#, meaning: meaning)
     end
 
     # acronyms.uniq!
