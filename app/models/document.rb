@@ -80,7 +80,7 @@ class Document < ActiveRecord::Base
       bracketed_on_first_use = ($1 == "(#{ac})")
 
       #binding.pry
-      meaning = dictionary.lookup(ac)
+      meaning = dictionary ? dictionary.lookup(ac) : nil
 
       # Create Acronym
       # Old
