@@ -33,13 +33,34 @@ class FileUploader < CarrierWave::Uploader::Base
 
   def to_text
     raise "docx2txt has not been installed" unless system('which docx2txt')
-    `docx2txt #{current_path}`
-    File.rename current_path.sub(/docx$/, 'txt'), current_path
-    # current_path.sub! /docx$/, 'txt'
-    # model.file = file.file.sub 
-    # binding.pry
+    #################################################################################
+    # Document must end in .docx (case sensitive) in order for the old jiggery-pokery
+    # to work
+    # This is what docx2txt does:
+    #   filename.docx --> filename.txt
+    #   filename.DOCX --> filename.DOCX.txt
+    #################################################################################
 
-    # "Dummy document"
+    # Usage:  /usr/bin/docx2txt [infile.docx|-|-h] [outfile.txt|-]
+    #         /usr/bin/docx2txt < infile.docx
+    #         /usr/bin/docx2txt < infile.docx > outfile.txt
+    # 
+    #         In second usage, output is dumped on STDOUT.
+    # 
+    #         Use '-h' as the first argument to get this usage information.
+    # 
+    #         Use '-' as the infile name to read the docx file from STDIN.
+    # 
+    #         Use '-' as the outfile name to dump the text on STDOUT.
+    #         Output is saved in infile.txt if second argument is omitted.
+    # 
+    # Note:   infile.docx can also be a directory name holding the unzipped content
+    #         of concerned .docx file.
+
+    txt_path = current_path.sub(/docx$/i, 'txt')
+    # Explicitly define destination because otherwise docx2txt is inconsistent
+    `docx2txt < "#{current_path}" > "#{txt_path}"`
+    File.rename txt_path, current_path
   end
 
   # Create different versions of your uploaded files:
@@ -49,8 +70,6 @@ class FileUploader < CarrierWave::Uploader::Base
 
   version :text do
     process :to_text
-    # raise
-    # "Dummy document"
   end
 
   # Add a white list of extensions which are allowed to be uploaded.

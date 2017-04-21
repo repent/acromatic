@@ -1,3 +1,7 @@
+# 4/17
+
+Fix #4, files with .DOCX extension failed with UTF-8 error
+
 # 3/17
 
 Add dictionaries and definitions
