@@ -15,6 +15,7 @@ class DocumentsController < ApplicationController
   # GET /documents/new
   def new
     @document = Document.new
+    @document.allow_short = true # default to allowing this
   end
 
   # GET /documents/1/edit
@@ -73,6 +74,6 @@ class DocumentsController < ApplicationController
     # Never trust parameters from the scary internet, only allow the white list through.
     def document_params
       params.fetch(:document, {}).permit(:file, :allow_mixedcase, :allow_plurals, :allow_hyphens,
-        :allow_numbers, :allow_short, :dictionary_id)
+        :allow_numbers, :allow_short, :exclude_roman, :dictionary_id)
     end
 end

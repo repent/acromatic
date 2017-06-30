@@ -20,6 +20,62 @@ class Acronym < ActiveRecord::Base
   belongs_to :document
   include Comparable
 
+  #Roman = Struct.new(:letter, :int)
+  ROMAN_MAP = { 1000 => 'M' ,
+                900 => 'CM',
+                500 => 'D' ,
+                400 => 'CD',
+                100 => 'C' ,
+                90 => 'XC',
+                50 => 'L' ,
+                40 => 'XL',
+                10 => 'X' ,
+                9 => 'IX',
+                5 => 'V' ,
+                4 => 'IV',
+                1 => 'I',
+              }
+  ROMAN_NUMERALS = Array.new(3999) do |index|
+    target = index + 1
+    ROMAN_MAP.keys.sort { |a,b| b <=> a }.inject("") do |roman, div|
+      times, target = target.divmod(div)
+      roman << ROMAN_MAP[div] * times
+    end
+  end
+
+  #def initialize
+#
+  #  ROMAN = [ Roman.new( 'M' , 1000 ),       
+  #                Roman.new( 'CM', 900  ),      
+  #                Roman.new( 'D' , 500  ),      
+  #                Roman.new( 'CD', 400  ),      
+  #                Roman.new( 'C' , 100  ),      
+  #                Roman.new( 'XC', 90   ),     
+  #                Roman.new( 'L' , 50   ),     
+  #                Roman.new( 'XL', 40   ),     
+  #                Roman.new( 'X' , 10   ),     
+  #                Roman.new( 'IX', 9    ),    
+  #                Roman.new( 'V' , 5    ),    
+  #                Roman.new( 'IV', 4    ),    
+  #                Roman.new( 'I' , 1    ),    
+  #              ]
+  #  ROMAN_ARR = [ [ 'M'  , 1000 ],       
+  #                [ 'CM' , 900  ],      
+  #                [ 'D'  , 500  ],      
+  #                [ 'CD' , 400  ],      
+  #                [ 'C'  , 100  ],      
+  #                [ 'XC' , 90   ],     
+  #                [ 'L'  , 50   ],     
+  #                [ 'XL' , 40   ],     
+  #                [ 'X'  , 10   ],     
+  #                [ 'IX' , 9    ],    
+  #                [ 'V'  , 5    ],    
+  #                [ 'IV' , 4    ],    
+  #                [ 'I'  , 1    ],    
+  #              ]
+  #  super
+  #end
+
   # def initialize ac, context, bracketed, bracketed_on_first_use
     # @acronym,@context,@bracketed,@bracketed_on_first_use = ac,context,bracketed,bracketed_on_first_use
   # end
@@ -49,7 +105,10 @@ class Acronym < ActiveRecord::Base
 
   def mixedcase?
     # If mixed case is banned but plurals are allowed, the acronym should be permitted to end in 's'
-    self.initialism =~ /[a-z]/ and !(self.initialism =~ /[A-Z,0-9][A-Z,0-9,-]+[A-Z,0-9]s$/)
+    # This incorrectly finds that ToRs is not mixed case.
+    #self.initialism =~ /[a-z]/ and !(self.initialism =~ /[A-Z,0-9][A-Z,0-9,-]+[A-Z,0-9]s$/)
+    # Either a non-s lower case letter or an s followed by another character
+    self.initialism =~ /[a-r,t-z]/ or self.initialism =~ /s./
   end
   def plurals?
     self.initialism =~ /s$/
@@ -63,13 +122,18 @@ class Acronym < ActiveRecord::Base
   def short?
     self.initialism.length == 2
   end
+  def roman?
+    #self.initialism =~ /[IVXLCDM]+/
+    ROMAN_NUMERALS.include? self.initialism
+  end
 
   def allowed?() # allow_mixedcase: false, allow_plurals: false, allow_hyphens: false, allow_numbers: false)
     if ( ( !document.allow_mixedcase and mixedcase? ) ||
          ( !document.allow_plurals   and plurals?   ) ||
          ( !document.allow_hyphens   and hyphens?   ) ||
          ( !document.allow_numbers   and numbers?   ) ||
-         ( !document.allow_short     and short?    ))
+         ( !document.allow_short     and short?     ) ||
+         (  document.exclude_roman   and roman?    ))
       return false
     else
       return true
@@ -90,6 +154,21 @@ class Acronym < ActiveRecord::Base
     %Q{<a href="https://duckduckgo.com/?q=#{initialism}" target="_blank">#{text}</a>}
   end
 
+  def roman_to_i(roman)
+    raise "Invalid roman numeral" unless roman =~ /^[IVXLCDM]+$/
+    level = 1000 # We're particularly interested in catching errors; check big numbers don't show up after small ones
+    i = 0
+    ROMAN.each do |l|
+      if roman =~ /^#{l.letter}(.*)$/
+        puts "level: #{level}, l.int: #{l.int}"
+        raise "Invalid roman numeral" unless l.int <= level
+        level = l.int
+        i += l.int
+        roman = $1
+      end
+    end
+    return i
+  end
   #def find_definition_of(ac)
   #  search_term = Regexp.new 
   #end

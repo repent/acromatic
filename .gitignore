@@ -53,3 +53,6 @@ pickle-email-*.html
 #  git add bin/new-executable
 
 #/bin
+
+# Ignore any .docx files used for testing
+*.docx

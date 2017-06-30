@@ -11,7 +11,8 @@
 #  allow_hyphens   :boolean          default(FALSE)
 #  allow_numbers   :boolean          default(FALSE)
 #  allow_short     :boolean
-#  dictionary      :has_one
+#  dictionary_id   :integer
+#  exclude_roman   :boolean
 #
 
 require 'test_helper'

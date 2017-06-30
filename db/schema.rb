@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170312175921) do
+ActiveRecord::Schema.define(version: 20170630110459) do
 
   create_table "acronyms", force: :cascade do |t|
     t.string   "initialism"
@@ -53,6 +53,7 @@ ActiveRecord::Schema.define(version: 20170312175921) do
     t.boolean  "allow_numbers",   default: false
     t.boolean  "allow_short"
     t.integer  "dictionary_id"
+    t.boolean  "exclude_roman"
   end
 
   add_index "documents", ["dictionary_id"], name: "index_documents_on_dictionary_id"

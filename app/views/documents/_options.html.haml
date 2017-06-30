@@ -9,6 +9,8 @@
   = f.check_box :allow_numbers
   = f.label :allow_short, "Allow 2-letter acronyms"
   = f.check_box :allow_short
+  = f.label :exclude_roman, "Exclude roman numerals"
+  = f.check_box :exclude_roman
 %p
   = f.label :dictionary, "Select predefined dictionary"
   = f.collection_select(:dictionary_id, Dictionary.order(:name), :id, :name, include_blank: true)
