@@ -9,7 +9,7 @@
 #
 
 class Dictionary < ActiveRecord::Base
-  has_many :definitions
+  has_many :definitions, -> { order(initialism: :desc) }
   has_many :documents
   # Don't use commas because of definitions like ACP: Africa, Caribbean and Pacific group of countries
   DELIMITER = /[\t\;]/
