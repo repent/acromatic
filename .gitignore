@@ -79,4 +79,5 @@ node_modules/
 *.docx
 
 public/uploads
+public/assets
 vendor
