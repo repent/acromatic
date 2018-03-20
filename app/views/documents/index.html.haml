@@ -1,5 +1,5 @@
 %h1 Listing Documents
-%table
+%table{width: '100%'}
   %thead
     %tr
       %th Filename
@@ -14,5 +14,3 @@
         %td= link_to 'Edit', edit_document_path(document)
         %td= link_to 'Destroy', document, method: :delete, data: { confirm: 'Are you sure?' }
 %br/
-
-%p=# Rails.env
