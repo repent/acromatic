@@ -1,3 +1,6 @@
+@import 'colours';
+/* @import "colours"; */
+
 body {
   background-color: #fff;
   color: #333;
@@ -37,6 +40,13 @@ div {
   }
 }
 
+
+/*
+$alert_red: #900;
+$alert_pink: pink;
+$notice_green: #690;
+*/
+
 #notice, #alert {
   text-align: center;
   color: white;
@@ -44,26 +54,27 @@ div {
 }
 
 #notice {
-  background-color: #690;
+  background-color: $alert_red;
 }
 
 #alert {
-  background-color: #900;
+  background-color: $alert_red;
 }
 
 .field_with_errors {
   padding: 2px;
-  background-color: red;
+  background-color: $alert_red;
   display: table;
+  color: white;
 }
 
 #error_explanation {
   width: 450px;
-  border: 2px solid red;
+  border: 2px solid $alert_red;
   padding: 7px;
   padding-bottom: 0;
   margin-bottom: 20px;
-  background-color: #f0f0f0;
+  background-color: $alert_pink;
 
   h2 {
     text-align: left;
@@ -72,7 +83,7 @@ div {
     font-size: 12px;
     margin: -7px;
     margin-bottom: 0px;
-    background-color: #c00;
+    background-color: $alert_red;
     color: #fff;
   }
 
