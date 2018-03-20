@@ -1,5 +1,7 @@
 class DocumentsController < ApplicationController
   before_action :set_document, only: [:show, :edit, :update, :destroy]
+  before_action :authenticate_user!, only: [:index]
+  before_action :check_expiry, only: [:show, :edit, :update]
 
   # GET /documents
   # GET /documents.json
@@ -71,6 +73,14 @@ class DocumentsController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_document
       @document = Document.find(params[:id])
+    end
+
+    # Check that the document has been created in the last... day?
+    # This is the only form of privacy protection as there is no user privacy
+    # Session privacy would be better
+    def check_expiry
+      expiry_time = Time.now - 1.day
+      redirect_to new_document_url if @document.updated_at < expiry_time
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.
