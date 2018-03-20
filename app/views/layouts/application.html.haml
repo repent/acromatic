@@ -8,6 +8,8 @@
     = csrf_meta_tags
   %body
     = render 'layouts/userbar' #if user_signed_in?
-    %p#notice= notice
-    %p#alert= alert
+    - if notice
+      %p#notice= notice
+    - if alert
+      %p#alert= alert
     = yield
