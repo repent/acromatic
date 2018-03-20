@@ -25,7 +25,20 @@ class Document < ActiveRecord::Base
 
   CONTEXT = 60
 
+  # # There are better ways of doing this with callbacks but the kludgy way we're creating a text
+  # # version of the file makes it not obvious where to do this
+  # def remove_original # deletes original (maybe large) .docx file, called just before trawl
+  #   # This breaks refreshes -- seemingly can't reparse document
+  #   File.delete self.file.file.file
+  # end
+
+  def self.log(doc) # record basic details about this document, since the record will expire
+    @@document_log ||= Logger.new 'log/document_uploads.log'
+    @@document_log.info "#{File.basename doc.file_url}" # [dict: #{doc.dictionary_id.to_s}]"
+  end
+
   def trawl
+    # By this point the files have been moved to their final location in uploads/document/file/xxx
     # Grab the text version of this document
     text = File.readlines(self.file.versions[:text].file.file).join
     

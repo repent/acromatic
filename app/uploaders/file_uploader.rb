@@ -59,8 +59,11 @@ class FileUploader < CarrierWave::Uploader::Base
 
     txt_path = current_path.sub(/docx$/i, 'txt')
     # Explicitly define destination because otherwise docx2txt is inconsistent
+    # At this point the .docx is ONLY in public/uploads/tmp/
     `docx2txt < "#{current_path}" > "#{txt_path}"`
+    # Still only in tmp
     File.rename txt_path, current_path
+    # At some point after this, the two files get moved over to public/uploads/document/file/xxx
   end
 
   # Create different versions of your uploaded files:
@@ -73,7 +76,6 @@ class FileUploader < CarrierWave::Uploader::Base
   end
 
   # Add a white list of extensions which are allowed to be uploaded.
-  # For images you might use something like this:
   def extension_white_list
     %w(docx)
   end

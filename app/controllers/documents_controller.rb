@@ -30,6 +30,8 @@ class DocumentsController < ApplicationController
     respond_to do |format|
       if @document.save
         format.html do
+          #@document.remove_original
+          Document.log @document
           @document.trawl
           redirect_to @document, notice: 'Document was successfully created.'
         end
@@ -43,7 +45,7 @@ class DocumentsController < ApplicationController
 
   # PATCH/PUT /documents/1
   # PATCH/PUT /documents/1.json
-  def update
+  def update # Re-render when options have been changed
     respond_to do |format|
       if @document.update(document_params)
         format.html { redirect_to @document, notice: 'Document was successfully updated.' }
