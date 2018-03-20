@@ -29,11 +29,8 @@
           - else
             %td= ac.context( { css: true, search_link: true } ).html_safe
   
-  / %h1 Full text of document
-  / # =# HTML is probably NOT safe here
-  / # = md.render(File.readlines(@document.file.versions[:text].file.file) { |l| l }.join).html_safe
-  
-  =# link_to 'Edit', edit_document_path(@document)
-  =# link_to 'Back', documents_path
-  
   = link_to 'Upload another document', new_document_path
+
+  =# This throws a really obscure error
+  =# Completed 401 Unauthorized in 24ms (ActiveRecord: 0.5ms)
+  =# link_to 'Download the original document', @document.file

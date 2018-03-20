@@ -33,7 +33,7 @@ class DocumentsController < ApplicationController
       if @document.save
         format.html do
           #@document.remove_original
-          Document.log @document
+          #Document.log @document
           @document.trawl
           redirect_to @document, notice: 'Document was successfully created.'
         end
