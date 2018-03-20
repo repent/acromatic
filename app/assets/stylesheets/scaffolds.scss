@@ -37,8 +37,18 @@ div {
   }
 }
 
+#notice, #alert {
+  text-align: center;
+  color: white;
+  padding: 5pt;
+}
+
 #notice {
-  color: green;
+  background-color: #690;
+}
+
+#alert {
+  background-color: #900;
 }
 
 .field_with_errors {
