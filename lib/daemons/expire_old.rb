@@ -26,10 +26,14 @@ loop do
       if d.updated_at < threshold
         # full path: d.file.file.file
         # filename only: File.basename d.file_url
-        logger.info "#{File.basename d.file_url} (ID #{d.id}) is expired (last updated #{d.updated_at}),  deleting"
+        binding.pry
+        # error-proofing: seems that some document objects have been created with no file
+        basename = d.file_url ? File.basename d.file_url : '[none]'
+        if d.file_url
+          logger.info "#{basename} (ID #{d.id}) is expired (last updated #{d.updated_at}),  deleting"
         d.delete
       else
-        logger.debug "#{File.basename d.file_url} (ID #{d.id}) is too recent to remove (last updated #{d. updated_at}), leaving"
+        logger.debug "#{basename} (ID #{d.id}) is too recent to remove (last updated #{d. updated_at}), leaving"
       end
     end
   end
