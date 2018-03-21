@@ -39,20 +39,22 @@ class Document < ActiveRecord::Base
 
   def trawl
     # By this point the files have been moved to their final location in uploads/document/file/xxx
+    
     # Grab the text version of this document
     text = File.readlines(self.file.versions[:text].file.file).join
     
-    # Doesn't catch ToR, LoE etc, which are bullshit but so, fundamentally, are all acronyms
-    # text.scan(/[A-Z]{2,}/) do |ac|
-    #   acronyms.push ac
-    # end
     #pattern = /\b[A-Z]{2,}\b/ # restrictive
     #pattern = /\b([A-Z,0-9][A-z,0-9,-]+[A-Z,0-9](s)?)\b/ # liberal, 3-letter minimum, can start with number
     pattern = /\b([A-Z][A-z,0-9,-]*[A-Z,0-9](s)?)\b/ # liberal, 2-letter minimum, must start with letter
-    #internal_lowercase,plurals,hyphens,numbers=false,false,false,false
 
+    # Do stuff each time an acronym is found in the code
     text.scan(pattern) do |ac|
-      # if pattern contains grouts (with parentheses) then each ac will be an array
+      # pattern contains groups (with parentheses), so ac will be an array (0: whole match, 1: plural 's')
+      # This will include the s if it exists
+      # This means that the acronym list will contain
+      #   TOR
+      #   TORs
+      # if both appear
       ac = ac[0]
 
       # To do (here and above):
@@ -131,13 +133,4 @@ class Document < ActiveRecord::Base
   def acronym_count # .acronyms.length gives all acronyms, including those that have been excluded
     acronyms.collect{ |a| a.allowed? }.count(true)
   end
-
-  #def dictionary_id
-  #  dictionary.id
-  #end
-
-  #def find_definition(ac)
-  #  search_term = Regexp.new ac.chars.collect{ |c| "#{c}\w?" }.join('\s')
-  #  all = search_term.match(text).to_a
-  #end
 end

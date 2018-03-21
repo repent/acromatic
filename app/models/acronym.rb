@@ -43,39 +43,6 @@ class Acronym < ActiveRecord::Base
     end
   end
 
-  #def initialize
-#
-  #  ROMAN = [ Roman.new( 'M' , 1000 ),       
-  #                Roman.new( 'CM', 900  ),      
-  #                Roman.new( 'D' , 500  ),      
-  #                Roman.new( 'CD', 400  ),      
-  #                Roman.new( 'C' , 100  ),      
-  #                Roman.new( 'XC', 90   ),     
-  #                Roman.new( 'L' , 50   ),     
-  #                Roman.new( 'XL', 40   ),     
-  #                Roman.new( 'X' , 10   ),     
-  #                Roman.new( 'IX', 9    ),    
-  #                Roman.new( 'V' , 5    ),    
-  #                Roman.new( 'IV', 4    ),    
-  #                Roman.new( 'I' , 1    ),    
-  #              ]
-  #  ROMAN_ARR = [ [ 'M'  , 1000 ],       
-  #                [ 'CM' , 900  ],      
-  #                [ 'D'  , 500  ],      
-  #                [ 'CD' , 400  ],      
-  #                [ 'C'  , 100  ],      
-  #                [ 'XC' , 90   ],     
-  #                [ 'L'  , 50   ],     
-  #                [ 'XL' , 40   ],     
-  #                [ 'X'  , 10   ],     
-  #                [ 'IX' , 9    ],    
-  #                [ 'V'  , 5    ],    
-  #                [ 'IV' , 4    ],    
-  #                [ 'I'  , 1    ],    
-  #              ]
-  #  super
-  #end
-
   # def initialize ac, context, bracketed, bracketed_on_first_use
     # @acronym,@context,@bracketed,@bracketed_on_first_use = ac,context,bracketed,bracketed_on_first_use
   # end
