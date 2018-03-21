@@ -1,19 +1,14 @@
-@import 'colours';
+@import 'styles';
+
 /* @import "colours"; */
 
+/*
 body {
   background-color: #fff;
   color: #333;
-  font-family: verdana, arial, helvetica, sans-serif;
-  font-size: 13px;
   line-height: 18px;
 }
-
-p, ol, ul, td {
-  font-family: verdana, arial, helvetica, sans-serif;
-  font-size: 13px;
-  line-height: 18px;
-}
+*/
 
 pre {
   background-color: #eee;
@@ -21,18 +16,6 @@ pre {
   font-size: 11px;
 }
 
-a {
-  color: #000;
-
-  &:visited {
-    color: #666;
-  }
-
-  &:hover {
-    color: #fff;
-    background-color: #000;
-  }
-}
 
 div {
   &.field, &.actions {
@@ -77,18 +60,16 @@ $notice_green: #690;
   background-color: $alert_pink;
 
   h2 {
+    font-size: $body-size;
     text-align: left;
-    font-weight: bold;
     padding: 5px 5px 5px 15px;
-    font-size: 12px;
     margin: -7px;
     margin-bottom: 0px;
     background-color: $alert_red;
-    color: #fff;
+    color: white;
   }
 
   ul li {
-    font-size: 12px;
     list-style: square;
   }
 }
