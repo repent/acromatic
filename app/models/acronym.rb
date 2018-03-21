@@ -53,21 +53,18 @@ class Acronym < ActiveRecord::Base
   def <=>(other)
     self.initialism.to_s <=> other.initialism.to_s
   end
-  # Return blank string rather than nil
-  # This creates an infinite loop, obviously
-  #ef meaning
-  # meaning || ''
-  #nd
-  # Now a pseudo-field, generated on demand using the current dictionary
-  def meaning
+  # A pseudo-field, generated on demand using the current dictionary
+  # ...if not available
+  def find_meaning
+    return meaning if meaning
     if document and document.dictionary
       document.dictionary.lookup(initialism)
     else
       nil
     end
   end
-  def meaning?
-    !!meaning
+  def has_meaning?
+    !!find_meaning
   end
 
   def mixedcase?

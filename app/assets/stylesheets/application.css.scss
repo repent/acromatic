@@ -23,6 +23,15 @@ body {
   font-color: $text-colour;
 }
 
+#userbar {
+  font-size: $small-size;
+}
+
+textarea {
+  font-family: $mono;
+  font-size: $mono-size;
+}
+
 a {
   color: $text-colour;
 

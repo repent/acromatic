@@ -38,8 +38,6 @@ class DocumentsController < ApplicationController
     respond_to do |format|
       if @document.save
         format.html do
-          #@document.remove_original
-          #Document.log @document
           @document.trawl
           redirect_to @document, notice: 'Document was successfully created.'
         end

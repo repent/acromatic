@@ -10,9 +10,8 @@
 
   %h1 Options
   = form_for(@document) do |f|
-    %p
-      = render partial: 'options', locals: {f: f}
-      = f.submit "Refresh"
+    = render partial: 'options', locals: {f: f}
+    %p= f.submit "Refresh"
   
   %h1 Context on each acronym
   %table
@@ -23,8 +22,9 @@
     %tbody
       - @document.allowed_acronyms.sort.each do |ac|
         %tr
+          =# TODO: split before, acronym, after into 3 columns so things line up more nicely
           %td= ac.initialism
-          - if ac.meaning?
+          - if ac.has_meaning?
             %td#strikethrough= ac.context( { css: true, search_link: true } ).html_safe
           - else
             %td= ac.context( { css: true, search_link: true } ).html_safe
