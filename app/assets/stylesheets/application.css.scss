@@ -14,13 +14,31 @@
  *= require_self
  */
 
+@import 'styles';
+
 body {
-  font-family: "Avenir Next W01", Arial, "sans-serif";
-  font-size: 12;
+  font-family: $body; /* "Avenir Next W01", Arial, "sans-serif"; */
+  font-size: $body-size;
   text-align: justify;
+  font-color: $text-colour;
+}
+
+a {
+  color: $text-colour;
+
+  &:visited {
+    color: #666;
+  }
+
+  &:hover {
+    color: #fff;
+    background-color: #000;
+  }
 }
 
 h1 {
+  font-family: $headers;
+  font-size: $header-size;
   text-align: center;
 }
 

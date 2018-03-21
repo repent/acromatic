@@ -1,16 +1,22 @@
-%p
-  = f.label :allow_mixedcase
-  = f.check_box :allow_mixedcase
-  = f.label :allow_plurals
-  = f.check_box :allow_plurals
-  = f.label :allow_hyphens
-  = f.check_box :allow_hyphens
-  = f.label :allow_numbers
-  = f.check_box :allow_numbers
-  = f.label :allow_short, "Allow 2-letter acronyms"
-  = f.check_box :allow_short
-  = f.label :exclude_roman, "Exclude roman numerals"
-  = f.check_box :exclude_roman
-%p
-  = f.label :dictionary, "Select predefined dictionary"
-  = f.collection_select(:dictionary_id, Dictionary.order(:name), :id, :name, include_blank: true)
+%table
+  %tr
+    %td= f.check_box :allow_mixedcase
+    %td= f.label :allow_mixedcase
+  %tr
+    %td= f.check_box :allow_plurals
+    %td= f.label :allow_plurals
+  %tr
+    %td= f.check_box :allow_hyphens
+    %td= f.label :allow_hyphens
+  %tr
+    %td= f.check_box :allow_numbers
+    %td= f.label :allow_numbers
+  %tr
+    %td= f.check_box :allow_short
+    %td= f.label :allow_short, "Allow 2-letter acronyms"
+  %tr
+    %td= f.check_box :exclude_roman
+    %td= f.label :exclude_roman, "Exclude roman numerals"
+
+= f.label :dictionary, "Select predefined dictionary (optional)"
+= f.collection_select(:dictionary_id, Dictionary.order(:name), :id, :name, include_blank: true)

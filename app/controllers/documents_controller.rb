@@ -17,7 +17,13 @@ class DocumentsController < ApplicationController
   # GET /documents/new
   def new
     @document = Document.new
-    @document.allow_short = true # default to allowing this
+    # Set defaults
+    @document.allow_mixedcase = true
+    @document.allow_plurals = true
+    @document.allow_hyphens = true
+    @document.allow_numbers = true
+    @document.allow_short = true
+    @document.exclude_roman = true
   end
 
   # GET /documents/1/edit
