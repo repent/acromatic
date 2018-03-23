@@ -10,7 +10,7 @@
 
   %h1 Options
   = form_for(@document) do |f|
-    = render partial: 'options', locals: {f: f}
+    = render partial: 'refresh_options', locals: {f: f}
     %p= f.submit "Refresh"
   
   %h1 Context on each acronym

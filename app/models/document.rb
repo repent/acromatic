@@ -166,7 +166,7 @@ class Document < ActiveRecord::Base
       # Perhaps better for "meaning" not to be a db field of an acronym but a pseudo
       # built on demand from the current dictionary
       #meaning = dictionary ? dictionary.lookup(ac) : nil
-      meaning = if bracketed?(ac, text)
+      meaning = if bracketed?(ac, text) and guess_meanings
         get_meaning(ac, context.before.chomp('(').rstrip)
       else
         nil

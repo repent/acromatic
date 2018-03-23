@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170630110459) do
+ActiveRecord::Schema.define(version: 20180323165324) do
 
   create_table "acronyms", force: :cascade do |t|
     t.string   "initialism"
@@ -54,6 +54,7 @@ ActiveRecord::Schema.define(version: 20170630110459) do
     t.boolean  "allow_short"
     t.integer  "dictionary_id"
     t.boolean  "exclude_roman"
+    t.boolean  "guess_meanings"
   end
 
   add_index "documents", ["dictionary_id"], name: "index_documents_on_dictionary_id"

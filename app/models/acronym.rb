@@ -69,7 +69,7 @@ class Acronym < ActiveRecord::Base
     end
   end
   def has_meaning?
-    !!find_meaning
+    meaning or !!find_meaning
   end
 
   def mixedcase?
@@ -131,7 +131,7 @@ class Acronym < ActiveRecord::Base
     if meaning and !meaning.empty?
       meaning[0].upcase + meaning[1..-1]
     else
-      ''
+      find_meaning
     end
   end
 

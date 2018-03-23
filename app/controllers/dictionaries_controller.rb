@@ -1,6 +1,6 @@
 class DictionariesController < ApplicationController
   before_action :set_dictionary, only: [:show, :edit, :update, :destroy]
-  before_action :authenticate_user!
+  before_action :authenticate_user!, except: [:show]
 
   # GET /dictionaries
   # GET /dictionaries.json
