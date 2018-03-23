@@ -17,6 +17,9 @@
   %tr
     %td= f.check_box :exclude_roman
     %td= f.label :exclude_roman, "Exclude roman numerals"
+  %tr
+    %td= f.check_box :guess_meanings
+    %td= f.label :guess_meanings, "Infer meanings from text"
 
 = f.label :dictionary, "Select predefined dictionary (optional)"
 = f.collection_select(:dictionary_id, Dictionary.order(:name), :id, :name, include_blank: true)

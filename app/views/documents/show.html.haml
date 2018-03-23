@@ -6,7 +6,7 @@
   =# Don't place comments in the textarea -- it screws up the whitespace
   %textarea{rows: @document.acronym_count, cols: 60}
     - @document.allowed_acronyms.sort.each do |ac|
-      = find_and_preserve "#{ac.initialism}\t#{ac.meaning}&#x000A;"
+      = find_and_preserve "#{ac.initialism}\t#{ac.meaning_with_initial_capital}&#x000A;"
 
   %h1 Options
   = form_for(@document) do |f|
@@ -15,19 +15,14 @@
   
   %h1 Context on each acronym
   %table
-    %thead
-      %tr
-        %th Acronym
-        %th Context
     %tbody
       - @document.allowed_acronyms.sort.each do |ac|
         %tr
+          - style = ac.has_meaning? ? 'strikethrough' : ''
           =# TODO: split before, acronym, after into 3 columns so things line up more nicely
-          %td= ac.initialism
-          - if ac.has_meaning?
-            %td#strikethrough= ac.context( { css: true, search_link: true } ).html_safe
-          - else
-            %td= ac.context( { css: true, search_link: true } ).html_safe
+          %td{ class: "#{style} left" }= ac.context_before.html_safe
+          %td{ class: "#{style} middle" }= ac.markup
+          %td{ class: "#{style} right" }= ac.context_after.html_safe
   
   = link_to 'Upload another document', new_document_path
 

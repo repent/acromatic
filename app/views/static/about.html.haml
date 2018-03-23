@@ -4,8 +4,9 @@
       %td
         %h1 About Acromatic
         %p Upload a .docx document (the new format used by Word 2007 and later) and get a list of all the acronyms it contains, ready to be pasted into an acronyms definition list.  They're sorted alphabetically.
-        %p You can select what you consider an acronym: can it have inner lower-case letters like AusAID?  Could it be plural like TORs?  Can it include hyphens like IS-LM?  What about numbers, like USA2016?  Are two letters enough to count as an acronym?  What if it's a valid Roman numeral like VII?
+        %p You can select what you consider an acronym: could it be plural like TORs?  Can it include hyphens like IS-LM?  What about numbers, like USA2016?  Can it have inner lower-case letters like AusAID?  (CamelCase never counts.)  Are two letters enough to count as an acronym?  What if it's a valid Roman numeral like VII?
         %p This is alpha-quality code.  Do not upload anything confidential or sensitive.  There is no    guarantee that others will not be able to access your document or your acronym list.  The definition of an acronym is not yet all that well defined and may change without warning.  If a document that you upload doesn't work properly, we reserve the right to use that document to help us fix the problem and test any solution.
 
-        %center= link_to 'Raise an issue', 'https://github.com/repent/acromatic/issues'
+        %center= link_to 'Report a problem', 'https://github.com/repent/acromatic/issues'
+        %br
         %center= link_to 'Upload a document', new_document_path

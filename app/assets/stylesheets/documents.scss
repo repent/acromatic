@@ -8,6 +8,10 @@ span.acronym {
   font-style: underline;
 }
 
-td#strikethrough {
+td.strikethrough {
   text-decoration: line-through;
 }
+
+td.left   { text-align: right; }
+td.middle { text-align: center; }
+td.right  { text-align: left; }

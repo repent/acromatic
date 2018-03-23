@@ -24,6 +24,7 @@ class DocumentsController < ApplicationController
     @document.allow_numbers = true
     @document.allow_short = true
     @document.exclude_roman = true
+    @document.guess_meanings = true
   end
 
   # GET /documents/1/edit
@@ -90,6 +91,6 @@ class DocumentsController < ApplicationController
     # Never trust parameters from the scary internet, only allow the white list through.
     def document_params
       params.fetch(:document, {}).permit(:file, :allow_mixedcase, :allow_plurals, :allow_hyphens,
-        :allow_numbers, :allow_short, :exclude_roman, :dictionary_id)
+        :allow_numbers, :allow_short, :exclude_roman, :dictionary_id, :guess_meanings)
     end
 end

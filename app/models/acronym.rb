@@ -16,6 +16,10 @@
 
 # to refresh run annotate
 
+# Current master regexp (see Document model):
+#   pattern = /\b([A-Z][A-z,0-9,-]*[A-Z,0-9](s)?)\b/ # liberal, 2-letter minimum, must start with 
+#                                                  letter, must end with capital or number (or s)
+
 class Acronym < ActiveRecord::Base
   belongs_to :document
   include Comparable
@@ -51,7 +55,8 @@ class Acronym < ActiveRecord::Base
   #   @acronym == other.acronym
   # end
   def <=>(other)
-    self.initialism.to_s <=> other.initialism.to_s
+    # Ruby puts B before a, so use downcase.
+    self.initialism.downcase.to_s <=> other.initialism.downcase.to_s
   end
   # A pseudo-field, generated on demand using the current dictionary
   # ...if not available
@@ -72,7 +77,14 @@ class Acronym < ActiveRecord::Base
     # This incorrectly finds that ToRs is not mixed case.
     #self.initialism =~ /[a-z]/ and !(self.initialism =~ /[A-Z,0-9][A-Z,0-9,-]+[A-Z,0-9]s$/)
     # Either a non-s lower case letter or an s followed by another character
-    self.initialism =~ /[a-r,t-z]/ or self.initialism =~ /s./
+    # &&: intersection of 2 character classes
+    self.initialism =~ /[a-z&&^s]/ or self.initialism =~ /s./
+    #self.initialism =~ /[a-r,t-z]/ or self.initialism =~ /s./
+    # Tests
+    # CamelCase -- no
+    # AusAID -- yes
+    # ToR -- yes
+    # ToRs -- yes
   end
   def plurals?
     self.initialism =~ /s$/
@@ -109,6 +121,18 @@ class Acronym < ActiveRecord::Base
     if options[:search_link] then central_text = search_link end
     if options[:css] then central_text = '<span class="acronym">' + central_text + '</span>' end
     context_before + central_text + context_after
+  end
+
+  def markup
+    "<span class='acronym'>#{search_link}</span>".html_safe
+  end
+
+  def meaning_with_initial_capital
+    if meaning and !meaning.empty?
+      meaning[0].upcase + meaning[1..-1]
+    else
+      ''
+    end
   end
 
   private
