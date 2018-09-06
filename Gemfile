@@ -2,10 +2,10 @@ source 'https://rubygems.org'
 
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '4.2.6'
+gem 'rails', '~> 4.2.6'
 # Use sqlite3 as the database for Active Record
 gem 'sqlite3'
-gem 'mysql2'
+#gem 'mysql2'
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 5.0'
 # Use Uglifier as compressor for JavaScript assets
@@ -64,7 +64,8 @@ group :development do
 
   # Adds detail on the database schema to the top of model descriptions
   # Usage: annotate
-  gem 'annotate'
+  # Problematic dependency: rake <12.0
+  #gem 'annotate'
 
   # Use Capistrano for deployment
   #gem 'capistrano-rails'
