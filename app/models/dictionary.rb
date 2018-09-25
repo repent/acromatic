@@ -14,6 +14,10 @@ class Dictionary < ActiveRecord::Base
   # Don't use commas because of definitions like ACP: Africa, Caribbean and Pacific group of countries
   DELIMITER = /[\t\;]/
 
+  #def after_create
+  #  binding.pry
+  #end
+
   def include?(initialism)
     definitions.to_a.include? initialism
   end

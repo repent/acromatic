@@ -27,7 +27,10 @@ class DictionariesController < ApplicationController
   # POST /dictionaries
   # POST /dictionaries.json
   def create
-    @dictionary = Dictionary.new(dictionary_params)
+    @dictionary = Dictionary.new(dictionary_real_params)
+    @dictionary.save # we're in trouble if this blows up -- currently no validation
+                     # of the name so it is less bad than the previous.
+    @dictionary.update(dictionary_params)
 
     respond_to do |format|
       if @dictionary.save
@@ -73,5 +76,8 @@ class DictionariesController < ApplicationController
     # Never trust parameters from the scary internet, only allow the white list through.
     def dictionary_params
       params.require(:dictionary).permit(:name, :quick_add)
+    end
+    def dictionary_real_params
+      params.require(:dictionary).permit(:name)
     end
 end
