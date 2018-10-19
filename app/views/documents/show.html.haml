@@ -1,3 +1,5 @@
+- content_for :title, "Acromatic: #{File.basename @document.file.to_s}"
+
 %center
   
   - md = Redcarpet::Markdown.new(Redcarpet::Render::HTML.new({hard_wrap: true}))
