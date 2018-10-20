@@ -2,6 +2,8 @@
 %p
   = link_to 'Quick add', edit_dictionary_path(@dictionary)
   |
+  = link_to 'Merge duplicates', merge_duplicates_dictionary_path(@dictionary)
+  |
   = link_to 'Back to all dictionaries', dictionaries_path
 %table{ width: '100%' }
   %thead
@@ -9,7 +11,7 @@
       %th Dictionary
       %th Initialism
       %th Meaning
-      %th{:colspan => "3"}
+      %th{:colspan => "3"} Actions
   %tbody
     - @dictionary.definitions.sort.each do |definition|
       = render definition

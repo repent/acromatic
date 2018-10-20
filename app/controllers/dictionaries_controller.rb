@@ -1,5 +1,5 @@
 class DictionariesController < ApplicationController
-  before_action :set_dictionary, only: [:show, :edit, :update, :destroy]
+  before_action :set_dictionary, only: [:show, :edit, :update, :destroy, :merge_duplicates]
   before_action :authenticate_user!, except: [:show]
 
   # GET /dictionaries
@@ -64,6 +64,19 @@ class DictionariesController < ApplicationController
     respond_to do |format|
       format.html { redirect_to dictionaries_url, notice: 'Dictionary was successfully destroyed.' }
       format.json { head :no_content }
+    end
+  end
+
+  def merge_duplicates
+    logger.info "Merging duplicates in #{@dictionary.name}..."
+    #binding.pry
+    respond_to do |format|
+      if count = @dictionary.merge_duplicates
+        format.html { redirect_to @dictionary, notice: "#{count} duplicates were successfully merged." }
+        #format.json { render :show, status: :ok, location: @dictionary }
+      else
+        format.html { redirect_to @dictionary, alert: 'Failed!' }
+      end
     end
   end
 
