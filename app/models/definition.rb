@@ -23,10 +23,11 @@ class Definition < ActiveRecord::Base
   def to_s
     initialism
   end
-  #def conflicted? # true if this dictionary has another meaning for this
-  #  #dictionary.count_definitions initialism > 1
-  #end
-  #def css_id
-  #  #conflicted? ? 'conflicted' : 'unique'
-  #end
+  def conflicted? # true if this dictionary has another meaning for this
+    #true
+    dictionary.count_definitions(initialism) > 1
+  end
+  def css_id
+    conflicted? ? 'conflicted' : 'unique'
+  end
 end

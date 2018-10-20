@@ -69,7 +69,7 @@ class Dictionary < ActiveRecord::Base
     return duplicate_count
   end
 
-  #def count_definitions(initialism)
-  #  #definitions.group_by(&:initialism)[initialism].length
-  #end
+  def count_definitions(initialism)
+    definitions.group_by(&:initialism)[initialism].length
+  end
 end

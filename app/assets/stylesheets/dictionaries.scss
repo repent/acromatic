@@ -1,3 +1,13 @@
 // Place all the styles related to the Dictionaries controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
+
+@import 'styles';
+
+tr#conflicted {
+  background-color: $sad-row;
+}
+
+tr#unique {
+  background-color: $happy-row;
+}
