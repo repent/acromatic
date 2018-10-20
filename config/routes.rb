@@ -1,7 +1,11 @@
 Rails.application.routes.draw do
   devise_for :users, controllers: { registrations: 'registrations' }
   resources :definitions
-  resources :dictionaries
+  resources :dictionaries do
+    member do
+      get 'merge_duplicates'
+    end
+  end
   resources :acronyms
   resources :documents
 

@@ -45,4 +45,27 @@ class Dictionary < ActiveRecord::Base
       end
     end
   end
+
+  def merge_duplicates
+    duplicate_count = 0
+    # initialism => [ definition1, definition2, ... ]
+    definitions.group_by(&:initialism).each_pair do |i,d|
+      # i=initialism
+      # d=[ definitions ]
+      logger.info "Comparing definitions of #{i}"
+      next if d.length == 1 # only one listing of this initialism
+      d.group_by(&:meaning).each_pair do |m,e|
+        # m: meaning
+        # e: [ deftinitions ]
+        logger.info "Dealing with duplicates of #{i} = #{m}"
+        e.pop # keep the first definition using this meaning
+        # if any remain, they're duplicates
+        e.each do |duplicate|
+          duplicate_count += 1
+          duplicate.destroy
+        end
+      end
+    end
+    return duplicate_count
+  end
 end
