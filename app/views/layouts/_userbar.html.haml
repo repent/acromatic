@@ -1,5 +1,7 @@
 #userbar
   - if user_signed_in?
+    = link_to 'Dictionaries', dictionaries_path
+    |
     =# "Signed in as #{current_user.email}"
     = link_to('Logout', destroy_user_session_path, method: :delete)
   - else

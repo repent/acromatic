@@ -72,7 +72,8 @@ class DictionariesController < ApplicationController
     #binding.pry
     respond_to do |format|
       if count = @dictionary.merge_duplicates
-        format.html { redirect_to @dictionary, notice: "#{count} duplicates were successfully merged." }
+        count_s_were = count == 1 ? ' was' : 's were'
+        format.html { redirect_to @dictionary, notice: "#{count} duplicate#{count_s_were} successfully merged." }
         #format.json { render :show, status: :ok, location: @dictionary }
       else
         format.html { redirect_to @dictionary, alert: 'Failed!' }
