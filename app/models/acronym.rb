@@ -89,8 +89,8 @@ class Acronym < ActiveRecord::Base
   def plurals?
     self.initialism =~ /s$/
   end
-  def hyphens?
-    self.initialism =~ /\-/
+  def hyphens? # or ampersands
+    self.initialism =~ /[\-\&]/
   end
   def numbers?
     self.initialism =~ /[0-9]/

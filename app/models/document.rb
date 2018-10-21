@@ -88,7 +88,7 @@ class Document < ActiveRecord::Base
     
     #pattern = /\b[A-Z]{2,}\b/ # restrictive
     #pattern = /\b([A-Z,0-9][A-z,0-9,-]+[A-Z,0-9](s)?)\b/ # liberal, 3-letter minimum, can start with number
-    pattern = /\b([A-Z][A-z,0-9,-]*[A-Z,0-9](s)?)\b/ # liberal, 2-letter minimum, must start with letter
+    pattern = /\b([A-Z][A-z,0-9,&-]*[A-Z,0-9](s)?)\b/ # liberal, 2-letter minimum, must start with letter
 
     # Do stuff each time an acronym is found in the code
     text.scan(pattern) do |ac|
