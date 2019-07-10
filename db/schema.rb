@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180323165324) do
+ActiveRecord::Schema.define(version: 20190710143920) do
 
   create_table "acronyms", force: :cascade do |t|
     t.string   "initialism"
@@ -23,6 +23,7 @@ ActiveRecord::Schema.define(version: 20180323165324) do
     t.text     "context_before"
     t.text     "context_after"
     t.string   "meaning"
+    t.string   "plural_meaning"
   end
 
   add_index "acronyms", ["document_id"], name: "index_acronyms_on_document_id"

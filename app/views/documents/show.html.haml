@@ -8,7 +8,7 @@
   =# Don't place comments in the textarea -- it screws up the whitespace
   %textarea{rows: @document.acronym_count, cols: 60}
     - @document.allowed_acronyms.sort.each do |ac|
-      = find_and_preserve "#{ac.initialism}\t#{ac.meaning_with_initial_capital}&#x000A;"
+      = find_and_preserve "#{ac.initialism_for_list}\t#{ac.meaning_with_initial_capital_for_list}&#x000A;"
 
   %h1 Options
   = form_for(@document) do |f|

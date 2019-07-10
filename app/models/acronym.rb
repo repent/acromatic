@@ -135,6 +135,25 @@ class Acronym < ActiveRecord::Base
     end
   end
 
+  # for_list variants use the plural if it's the only one available
+  def initialism_for_list
+    if (plural_meaning and plural_meaning.present?) and (!meaning and !meaning.present?)
+      initialism + 's'
+    else
+      initialism
+    end
+  end
+
+  def meaning_with_initial_capital_for_list
+    if meaning and meaning.present?
+      meaning_with_initial_capital
+    elsif plural_meaning and plural_meaning.present?
+      plural_meaning[0].upcase + plural_meaning[1..-1]
+    else
+      find_meaning
+    end
+  end
+
   private
   def search_link(text=self.initialism)
     # www.acronymfinder.com/#{initialism}.html
@@ -156,6 +175,10 @@ class Acronym < ActiveRecord::Base
       end
     end
     return i
+  end
+
+  def singular
+    initialism[-1] == 's' ? initialism[0...-1] : initialism
   end
   #def find_definition_of(ac)
   #  search_term = Regexp.new 
