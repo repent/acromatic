@@ -1,0 +1,8 @@
+rails c
+
+# Deletes from database but doesn't remove files
+Document.all.each { |d| d.delete if d.updated_at < Time.now - 2.days }
+Document.all.each { |d| d.delete }
+
+# Remove files
+rm -r public/uploads/document/file/*
