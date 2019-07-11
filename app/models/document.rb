@@ -226,8 +226,6 @@ class Document < ActiveRecord::Base
       ############################################################################################
     end
 
-    binding.pry
-
     # acronyms.uniq!
     # acronyms.sort!
 
