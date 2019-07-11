@@ -136,21 +136,12 @@ class Acronym < ActiveRecord::Base
     end
   end
 
-  # for_list variants use the plural if it's the only one available
   def initialism_for_list
-    if 
-  end
-
-  def initialism_in_context
-    if plural_only or defined_in_plural
-      self.initialism + 's'
-    else
-      self.initialism
-    end
+    plural_only || defined_in_plural ? initialism + 's' : initialism
   end
 
   private
-  def search_link(text=self.initialism_in_context)
+  def search_link(text=self.initialism_for_list)
     # www.acronymfinder.com/#{initialism}.html
     # acronyms.thefreedictionary.com/#{initialism}
     %Q{<a href="https://duckduckgo.com/?q=#{initialism}" target="_blank">#{text}</a>}

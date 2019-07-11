@@ -307,8 +307,6 @@ class Document < ActiveRecord::Base
     start = (index - CONTEXT) < 0 ? 0 : index - CONTEXT
     finish = (index + ac.length + CONTEXT) > text.length ? text.length : index + ac.length + CONTEXT
 
-    #binding.pry
-
     Context.new( text[start...index],
       text[(index+ac.length)...finish]
     )
@@ -358,7 +356,6 @@ class Document < ActiveRecord::Base
     # don't want to match a pair of random words earlier in the paragraph
     definition_regexp += '$'
     definition_regexp = Regexp.new definition_regexp, case_sensitivity
-    #binding.pry
     if previous_text =~ definition_regexp
       meaning = $&
       @guesslog.info { "Matched '#{singular}' with '#{meaning}'" }
