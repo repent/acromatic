@@ -68,7 +68,8 @@ group :development do
 
   # Adds detail on the database schema to the top of model descriptions
   # Usage: annotate
-  gem 'annotate'
+  #gem 'annotate'
+  gem 'annotate_rails'
 
   # Use Capistrano for deployment
   #gem 'capistrano-rails'
