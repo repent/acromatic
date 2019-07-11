@@ -1,0 +1,12 @@
+If only used as plural: only list as plural
+If used as both and defined as both: only list and define as singular
+If used as singular but defined only as plural: only list and define as plural
+
+plural_only: Only exists in the file as plural
+defined_in_plural: May be listed as singular but only defined as plural
+  if not defined at all, this will be false
+
+Remember that it is necessary to be able to exclude acronyms that only exist as plurals after the fact.
+
+
+bracketed and bracketed_on_first_use may have been screwed up by the mashing of plurals -- can't remember why these were needed in the first place, seems like bullshit

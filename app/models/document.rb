@@ -1,5 +1,4 @@
 # encoding: utf-8
-
 # == Schema Information
 #
 # Table name: documents
@@ -15,6 +14,7 @@
 #  allow_short     :boolean
 #  dictionary_id   :integer
 #  exclude_roman   :boolean
+#  guess_meanings  :boolean
 #
 
 # to refresh run annotate
@@ -102,10 +102,14 @@ class Document < ActiveRecord::Base
 
       # If a plural has been found, record the singular in initialism, but remember (temporarily) that this was a plural so that we can record the definition differently
       plural = (ac[1] == 's')
-      ac_including_plural = ac[0]
+      singular = !plural
+      # initialism_as_found includes a plural so that when displayed alongside the saved context the text still makes sense
+      initialism_as_found = ac[0]
 
       ac = ac[0]
       ac = ac[0...-1] if ac[-1] == 's'
+
+      existing_record = self.acronyms.where(initialism: ac).first # nil if none
 
       # To do (here and above):
       #   Allow rescanning with different parsing options:
@@ -127,17 +131,21 @@ class Document < ActiveRecord::Base
       #   * ac already exists, AND
       #   * there is a singular definition OR this is a plural
 
+      # Continue if this is a new acronym, or the existing entry doesn't have the kind of
+      # definition that we have: plural if there is no definition or singular if there is
+      # no definition or only a plural one (singular definition assumed to be preferred)
       next if
         # the acronym already exists, AND
-        self.acronyms.where(initialism: ac).present? &&
+        existing_record &&
         (
-          # This is plural and there is already a plural definition, OR
-          ( plural && self.acronyms.where(initialism: ac).first.plural_meaning.present? ) ||
-          # This is singular and there is already a singular definition
-          ( !plural && self.acronyms.where(initialism: ac).first.meaning.present? )
+          # This is plural and there is already ANY definition recorded, OR
+          ( plural && existing_record.meaning ) ||
+          # This is singular and there is already a SINGULAR definition
+          ( singular && !existing_record.defined_in_plural && existing_record.meaning )
         )
 
-      # FROM NOW ON: this acronym doesn't exist or lacks the appropriate meaning
+      # FROM NOW ON: this acronym doesn't exist or lacks the appropriate meaning.
+      # Safe to overwrite the meaning as long as you're not overwriting it with nil (or you could overwrite a plural meaning with a null singular one)
 
       # TODO: Plurals are an arse
       # May want to:
@@ -170,7 +178,7 @@ class Document < ActiveRecord::Base
       #finish = (index + CONTEXT) > text.length ? text.length : index + CONTEXT
       #context_before = text[start...index] # used for display
       #context_after  = text[(index+ac.length)...finish] # display
-      context = get_context(ac_including_plural, text)
+      context = get_context(initialism_as_found, text)
       #############################################################################################
 
       ############################################################################################
@@ -188,18 +196,10 @@ class Document < ActiveRecord::Base
       # Perhaps better for "meaning" not to be a db field of an acronym but a pseudo
       # built on demand from the current dictionary
       #meaning = dictionary ? dictionary.lookup(ac) : nil
-      if plural
-        plural_meaning = if bracketed?(ac_including_plural, text) and guess_meanings
-          get_meaning(ac, context.before.chomp('(').rstrip)
-        else
-          nil
-        end
+      meaning = if bracketed?(initialism_as_found, text) and guess_meanings
+        get_meaning(initialism_as_found, context.before.chomp('(').rstrip)
       else
-        meaning = if bracketed?(ac_including_plural, text) and guess_meanings
-          get_meaning(ac, context.before.chomp('(').rstrip)
-        else
-          nil
-        end
+        nil
       end
 
       ############################################################################################
@@ -207,21 +207,41 @@ class Document < ActiveRecord::Base
       ############################################################################################
       # If the meaning has been learnt from the text, it is put into the database
       # If not, when the list is displayed, we'll try and match it with the chosen dictionary
-      stored_ac = self.acronyms.where(initialism: ac) # will be [] if not defined
-      if stored_ac.present?
-        stored_ac = stored_ac.first
-        # Get out of here unless we have somethign to add
-        next unless meaning || plural_meaning
+      #stored_ac = self.acronyms.where(initialism: ac) # will be [] if not defined
+      if existing_record
+        # TODO: if context stored is plural and we've found a singular, then replace
+        #stored_ac = stored_ac.first
+        # Get out of here unless we have somethign to add, which could be
+        #  * a definition if 
+        #     - defined_in_plural_only and singular, OR
+        #     - not defined
+        #  * a singular listing if plural_only
+        #next unless meaning
         # The appropriate meaning should be nil
-        raise "ASSERT: definition should be nil" if (plural && stored_ac.plural_meaning) || (!plural && stored_ac.meaning)
-        if plural
-          stored_ac.update( plural_meaning: plural_meaning )
-        else
-          stored_ac.update( meaning: meaning )
+        #raise "ASSERT: definition should be nil" if (plural && stored_ac.plural_meaning) || (!plural && stored_ac.meaning)
+        updates = {}
+        if singular
+          updates[:plural_only] = false
         end
+        if meaning.present? &&
+          ( 
+            !existing_record.meaning || 
+            ( singular && existing_record.defined_in_plural )
+          )
+          updates[:meaning] = meaning
+        end
+        if singular && meaning.present?
+          updates[:defined_in_plural] = false
+        end
+
+        existing_record.update( updates )
       else
-        self.acronyms.push Acronym.create(initialism: ac, context_before: context.before, context_after: context.after, bracketed: bracketed?(ac, text),
-        bracketed_on_first_use: bracketed_on_first_use?(ac, text), meaning: meaning, plural_meaning: plural_meaning )
+        self.acronyms.push Acronym.create(
+          initialism: ac, context_before: context.before, context_after: context.after, bracketed: bracketed?(initialism_as_found, text),
+            bracketed_on_first_use: bracketed_on_first_use?(initialism_as_found, text),
+            meaning: meaning, plural_only: plural, defined_in_plural:
+              ( plural && meaning.present? )
+          )
       end
       ############################################################################################
     end

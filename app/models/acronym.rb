@@ -12,6 +12,7 @@
 #  context_before         :text
 #  context_after          :text
 #  meaning                :string
+#  plural_only            :boolean
 #
 
 # to refresh run annotate
@@ -87,7 +88,7 @@ class Acronym < ActiveRecord::Base
     # ToRs -- yes
   end
   def plurals?
-    self.initialism =~ /s$/
+    self.plural_only
   end
   def hyphens? # or ampersands
     self.initialism =~ /[\-\&]/
@@ -137,25 +138,19 @@ class Acronym < ActiveRecord::Base
 
   # for_list variants use the plural if it's the only one available
   def initialism_for_list
-    if (plural_meaning and plural_meaning.present?) and (!meaning and !meaning.present?)
-      initialism + 's'
-    else
-      initialism
-    end
+    if 
   end
 
-  def meaning_with_initial_capital_for_list
-    if meaning and meaning.present?
-      meaning_with_initial_capital
-    elsif plural_meaning and plural_meaning.present?
-      plural_meaning[0].upcase + plural_meaning[1..-1]
+  def initialism_in_context
+    if plural_only or defined_in_plural
+      self.initialism + 's'
     else
-      find_meaning
+      self.initialism
     end
   end
 
   private
-  def search_link(text=self.initialism)
+  def search_link(text=self.initialism_in_context)
     # www.acronymfinder.com/#{initialism}.html
     # acronyms.thefreedictionary.com/#{initialism}
     %Q{<a href="https://duckduckgo.com/?q=#{initialism}" target="_blank">#{text}</a>}
