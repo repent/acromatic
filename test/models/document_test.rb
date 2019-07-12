@@ -13,6 +13,7 @@
 #  allow_short     :boolean
 #  dictionary_id   :integer
 #  exclude_roman   :boolean
+#  guess_meanings  :boolean
 #
 
 require 'test_helper'

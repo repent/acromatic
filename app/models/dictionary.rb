@@ -8,6 +8,7 @@
 #  updated_at :datetime         not null
 #
 
+
 class Dictionary < ActiveRecord::Base
   has_many :definitions, -> { order(initialism: :desc) }
   has_many :documents

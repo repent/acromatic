@@ -3,7 +3,7 @@ source 'https://rubygems.org'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 # ruby 2.4 combines bignum and fixnum into integer, which breaks lots of stuff in rails <4.2.8
-gem 'rails', '~> 4.2.8'
+gem 'rails', '~> 4.2.11.1'
 # Use sqlite3 as the database for Active Record
 gem 'sqlite3'
 #gem 'mysql2'
@@ -68,7 +68,8 @@ group :development do
 
   # Adds detail on the database schema to the top of model descriptions
   # Usage: annotate
-  gem 'annotate'
+  #gem 'annotate'
+  gem 'annotate_rails'
 
   # Use Capistrano for deployment
   #gem 'capistrano-rails'

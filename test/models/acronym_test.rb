@@ -12,6 +12,7 @@
 #  context_before         :text
 #  context_after          :text
 #  meaning                :string
+#  plural_only            :boolean
 #
 
 require 'test_helper'

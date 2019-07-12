@@ -12,6 +12,7 @@
 #  context_before         :text
 #  context_after          :text
 #  meaning                :string
+#  plural_only            :boolean
 #
 
 # to refresh run annotate
@@ -87,7 +88,7 @@ class Acronym < ActiveRecord::Base
     # ToRs -- yes
   end
   def plurals?
-    self.initialism =~ /s$/
+    self.plural_only
   end
   def hyphens? # or ampersands
     self.initialism =~ /[\-\&]/
@@ -135,8 +136,12 @@ class Acronym < ActiveRecord::Base
     end
   end
 
+  def initialism_for_list
+    plural_only || defined_in_plural ? initialism + 's' : initialism
+  end
+
   private
-  def search_link(text=self.initialism)
+  def search_link(text=self.initialism_for_list)
     # www.acronymfinder.com/#{initialism}.html
     # acronyms.thefreedictionary.com/#{initialism}
     %Q{<a href="https://duckduckgo.com/?q=#{initialism}" target="_blank">#{text}</a>}
@@ -156,6 +161,10 @@ class Acronym < ActiveRecord::Base
       end
     end
     return i
+  end
+
+  def singular
+    initialism[-1] == 's' ? initialism[0...-1] : initialism
   end
   #def find_definition_of(ac)
   #  search_term = Regexp.new 
