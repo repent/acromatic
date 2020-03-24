@@ -13,6 +13,7 @@
 #  context_after          :text
 #  meaning                :string
 #  plural_only            :boolean
+#  defined_in_plural      :boolean
 #
 
 require 'test_helper'
