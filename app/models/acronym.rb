@@ -18,6 +18,8 @@
 
 # to refresh run annotate
 
+#  initialism is always singular
+
 # Current master regexp (see Document model):
 #   pattern = /\b([A-Z][A-z,0-9,-]*[A-Z,0-9](s)?)\b/ # liberal, 2-letter minimum, must start with 
 #                                                  letter, must end with capital or number (or s)
@@ -75,18 +77,15 @@ class Acronym < ActiveRecord::Base
   end
 
   def mixedcase?
-    # If mixed case is banned but plurals are allowed, the acronym should be permitted to end in 's'
-    # This incorrectly finds that ToRs is not mixed case.
-    #self.initialism =~ /[a-z]/ and !(self.initialism =~ /[A-Z,0-9][A-Z,0-9,-]+[A-Z,0-9]s$/)
+    # initialism is always singular, even if the acronym does not appear in singular
+    # so this test does not need to worry about a trailing s; this should never be present
+    !!(self.initialism =~ /[a-z]/)
+
+    # OLD: (trying to cope with potential plurals)
     # Either a non-s lower case letter or an s followed by another character
     # &&: intersection of 2 character classes
-    self.initialism =~ /[a-z&&^s]/ or self.initialism =~ /s./
     #self.initialism =~ /[a-r,t-z]/ or self.initialism =~ /s./
-    # Tests
-    # CamelCase -- no
-    # AusAID -- yes
-    # ToR -- yes
-    # ToRs -- yes
+    #self.initialism =~ /[a-z&&^s]/ or self.initialism =~ /s./
   end
   def plurals?
     self.plural_only

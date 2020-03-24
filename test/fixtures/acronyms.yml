@@ -19,13 +19,12 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  acronym: MyString
-  context: MyText
-  bracketed: false
+  initialism: ONE
+  bracketed: true
   bracketed_on_first_use: false
-
-two:
-  acronym: MyString
-  context: MyText
-  bracketed: false
-  bracketed_on_first_use: false
+  document_id: 1
+  context_before: I suppose
+  context_after: or else
+  meaning: nil
+  plural_only: false
+  defined_in_plural: false
