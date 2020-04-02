@@ -68,6 +68,15 @@ class Document < ActiveRecord::Base
 
   Context = Struct.new(:before, :after)
 
+  ################################################################
+  # The Pattern
+  #pattern = /\b[A-Z]{2,}\b/ # restrictive
+  #pattern = /\b([A-Z,0-9][A-z,0-9,-]+[A-Z,0-9](s)?)\b/ # liberal, 3-letter minimum, can starwith number
+  # don't need the \b, knowing that the char inside is \w
+  PATTERN = /[\W]([A-Z][A-z,0-9,&-+]*[A-Z,0-9,+-](s)?)[\W]/ # liberal, 2-letter minimum, musstart with letter
+  #pattern = /\b([A-Z][A-z,0-9,&-]*[A-Z,0-9](s)?)\b/ # liberal, 2-letter minimum, must starwith letter
+  ################################################################
+
   # # There are better ways of doing this with callbacks but the kludgy way we're creating a text
   # # version of the file makes it not obvious where to do this
   # def remove_original # deletes original (maybe large) .docx file, called just before trawl
@@ -86,13 +95,8 @@ class Document < ActiveRecord::Base
     # Grab the text version of this document
     text = File.readlines(self.file.versions[:text].file.file).join
     
-    #pattern = /\b[A-Z]{2,}\b/ # restrictive
-    #pattern = /\b([A-Z,0-9][A-z,0-9,-]+[A-Z,0-9](s)?)\b/ # liberal, 3-letter minimum, can start with number
-    pattern = /\b([A-Z][A-z,0-9,&-]*[A-Z,0-9](s)?)\b/ # liberal, 2-letter minimum, must start with letter
-
     # Do stuff each time an acronym is found in the code
-    text.scan(pattern) do |ac|
-
+    text.scan(PATTERN) do |ac|
       # pattern contains groups (with parentheses), so ac will be an array (0: whole match, 1: plural 's')
       # This will be just the s if it exists
       # This means that the acronym list will contain

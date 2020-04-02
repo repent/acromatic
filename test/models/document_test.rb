@@ -17,9 +17,15 @@
 #
 
 require 'test_helper'
+#require 'ruby-debug' # if ENV['DEBUG']
 
 class DocumentTest < ActiveSupport::TestCase
   # test "the truth" do
   #   assert true
   # end
+  #test "find an acronym" do
+  #  finds = "Search this sentence FOR an acronym.".scan(Document.pattern)
+  #  assert finds[0] == 'FOR'
+  #  byebug
+  #end
 end

@@ -21,6 +21,11 @@ require 'test_helper'
 class AcronymTest < ActiveSupport::TestCase
   test "the truth" do
     assert true
+    # assert_not
+    # available assertions: https://guides.rubyonrails.org/testing.html#the-test-environment
+    # assert_raises(NameError) do
+    #   some_undefined_variable
+    # end
   end
 
   # initialism is always SINGULAR, so testing plurals is NOT ALLOWED
@@ -35,10 +40,14 @@ class AcronymTest < ActiveSupport::TestCase
     assert !Acronym.new(initialism: 'TOR').mixedcase?
     assert  Acronym.new(initialism: 'yURT').mixedcase?
   end
-  test "should know if it contains hyphens" do
+  test "should know if it contains hyphens ampersands or plus signs" do
     assert  Acronym.new(initialism: 'IS-LM').hyphens?
     assert !Acronym.new(initialism: 'ISLM').hyphens?
     assert  Acronym.new(initialism: 'AB-').hyphens?
+    assert  Acronym.new(initialism: 'S&DT').hyphens?
+    assert  Acronym.new(initialism: 'S+DT').hyphens?
+    assert  Acronym.new(initialism: 'TAF2+').hyphens?
+    assert  Acronym.new(initialism: 'PACER+').hyphens?
   end
   test "should know if it contains numbers" do
     assert  Acronym.new(initialism: 'A4T').numbers?
