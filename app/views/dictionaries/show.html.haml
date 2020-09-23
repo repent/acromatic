@@ -2,6 +2,8 @@
 %p
   = link_to 'Quick add', edit_dictionary_path(@dictionary)
   |
+  = link_to 'Individual add', new_definition_path({ dictionary_id: @dictionary.id }) #add_definition_dictionary_path(@dictionary)
+  |
   = link_to 'Merge duplicates', merge_duplicates_dictionary_path(@dictionary)
   |
   = link_to 'Back to all dictionaries', dictionaries_path

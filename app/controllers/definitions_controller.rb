@@ -15,6 +15,7 @@ class DefinitionsController < ApplicationController
 
   # GET /definitions/new
   def new
+    set_dictionary
     @definition = Definition.new
   end
 
@@ -29,7 +30,7 @@ class DefinitionsController < ApplicationController
 
     respond_to do |format|
       if @definition.save
-        format.html { redirect_to @definition, notice: 'Definition was successfully created.' }
+        format.html { redirect_to @definition.dictionary, notice: 'Definition was successfully created.' }
         format.json { render :show, status: :created, location: @definition }
       else
         format.html { render :new }
@@ -72,5 +73,9 @@ class DefinitionsController < ApplicationController
     # Never trust parameters from the scary internet, only allow the white list through.
     def definition_params
       params.require(:definition).permit(:dictionary_id, :initialism, :meaning)
+    end
+
+    def set_dictionary
+      @dictionary = Dictionary.find(params[:dictionary_id])
     end
 end

@@ -1,3 +1,4 @@
+- @dictionary ||= @definition.dictionary
 = form_for(@definition) do |f|
   - if @definition.errors.any?
     #error_explanation
@@ -8,9 +9,7 @@
         - @definition.errors.full_messages.each do |message|
           %li= message
   .field
-    = f.label :dictionary_id
-    %br/
-    = f.collection_select(:dictionary_id, Dictionary.order(:name), :id, :name, include_blank: true)
+    = f.hidden_field :dictionary_id, value: @dictionary.id
   .field
     = f.label :initialism
     %br/
