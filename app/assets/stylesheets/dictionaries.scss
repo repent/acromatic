@@ -8,6 +8,10 @@ tr#conflicted {
   background-color: $sad-row;
 }
 
+tr#duplicate {
+  background: $mid-row;
+}
+
 tr#unique {
   background-color: $happy-row;
 }

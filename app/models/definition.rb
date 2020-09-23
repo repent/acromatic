@@ -18,12 +18,18 @@ class Definition < ActiveRecord::Base
   validates :meaning, length: {minimum: 2}
   validates :dictionary, presence: true
 
+  # Top level sort: auto-mergeables, conflicts, uniques
+  # Second: initialism
+  # Third: meaning
   def <=>(other)
     # Bump one to the surface if it is conflicted and the other isn't
-    return -1 if (conflicted? and !other.conflicted?)
-    return  1 if (!conflicted? and other.conflicted?)
+    #return -1 if (conflicted? and !other.conflicted?)
+    #return  1 if (!conflicted? and other.conflicted?)
+    comparison = (sort_level <=> other.sort_level)
+    return comparison unless comparison == 0
     # Next sort by initialism, then meaning
-    return (initialism.downcase <=> other.initialism.downcase) unless 0 == (initialism.downcase <=> other.initialism.downcase)
+    comparison = (initialism.downcase <=> other.initialism.downcase)
+    return comparison unless comparison == 0
     meaning.downcase <=> other.meaning.downcase
   end
 
@@ -36,11 +42,32 @@ class Definition < ActiveRecord::Base
   end
   def duplicate? # true if there is another Definition with same initialism, same meaning
     dictionary.definitions.each do |definition|
-      return true if self == definition
+      next if id == definition.id # don't compare with self
+      return true if identical_to?(definition)
     end
     false
   end
+
   def css_id
-    conflicted? ? 'conflicted' : 'unique'
+    if conflicted?
+      if duplicate?
+        'duplicate'
+      else
+        'conflicted'
+      end
+    else
+      'unique'
+    end
+  end
+  def sort_level
+    return 0 if duplicate?
+    return 1 if conflicted?
+    return 2
+  end
+
+  private
+  def identical_to?(other)
+    raise "Comparison with self makes no sense" if id == other.id
+    return ((initialism == other.initialism) and (meaning == other.meaning))
   end
 end

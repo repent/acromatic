@@ -16,9 +16,12 @@ dictionaries = Dictionary.create(
 
 definitions = Definition.create([
   {initialism: 'AA', dictionary: dictionaries.first, meaning: 'Automobile Association'},
-  {initialism: 'AAA', dictionary: dictionaries.first, meaning: 'Alcoholics Anonymous'},
+  {initialism: 'AA', dictionary: dictionaries.first, meaning: 'Alcoholics Anonymous'},
   {initialism: 'BB', dictionary: dictionaries.first, meaning: "Beautiful booty"},
-  {initialism: 'BB', dictionary: dictionaries.first, meaning: "Bountiful beauty"}
+  {initialism: 'BB', dictionary: dictionaries.first, meaning: "Beautiful booty"},
+  {initialism: 'BB', dictionary: dictionaries.first, meaning: "Bountiful beauty"},
+  {initialism: 'CC', dictionary: dictionaries.first, meaning: "Crap cardiologist"},
+  {initialism: 'DD', dictionary: dictionaries.first, meaning: "Directionless dentist"}
 ])
 
 end
