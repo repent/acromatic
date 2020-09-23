@@ -366,7 +366,7 @@ class Document < ActiveRecord::Base
     else
       text_to_log = 40
       shortened_text = previous_text.length > text_to_log ? previous_text[-text_to_log..-1] : previous_text
-      @guesslog.info { "Failed to match '#{singular} in '#{shortened_text}'"}
+      @guesslog.info { "Failed to match '#{singular}' in '#{shortened_text}'"}
     end
     meaning
   end
