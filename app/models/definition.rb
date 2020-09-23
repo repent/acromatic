@@ -30,9 +30,15 @@ class Definition < ActiveRecord::Base
   def to_s
     initialism
   end
-  def conflicted? # true if this dictionary has another meaning for this
+  def conflicted? # true if this dictionary has another instance of this initialism (regardless of whether the meanings are the same)
     #true
     dictionary.count_definitions(initialism) > 1
+  end
+  def duplicate? # true if there is another Definition with same initialism, same meaning
+    dictionary.definitions.each do |definition|
+      return true if self == definition
+    end
+    false
   end
   def css_id
     conflicted? ? 'conflicted' : 'unique'
