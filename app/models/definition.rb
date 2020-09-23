@@ -19,8 +19,14 @@ class Definition < ActiveRecord::Base
   validates :dictionary, presence: true
 
   def <=>(other)
-    initialism.to_s.downcase <=> other.to_s.downcase
+    # Bump one to the surface if it is conflicted and the other isn't
+    return -1 if (conflicted? and !other.conflicted?)
+    return  1 if (!conflicted? and other.conflicted?)
+    # Next sort by initialism, then meaning
+    return (initialism.downcase <=> other.initialism.downcase) unless 0 == (initialism.downcase <=> other.initialism.downcase)
+    meaning.downcase <=> other.meaning.downcase
   end
+
   def to_s
     initialism
   end
