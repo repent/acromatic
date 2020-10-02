@@ -3,9 +3,7 @@ source 'https://rubygems.org'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 # ruby 2.4 combines bignum and fixnum into integer, which breaks lots of stuff in rails <4.2.8
-gem 'rails', '~> 4.2.11.1'
-# Dependendency of rails; vulnerability in 2.1.3
-gem 'rack', '~> 2.1.4'
+gem 'rails', '~> 6.0.3'
 # Use sqlite3 as the database for Active Record
 gem 'sqlite3', '~> 1.3.13'
 #gem 'mysql2'
