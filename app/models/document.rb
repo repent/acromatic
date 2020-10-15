@@ -73,7 +73,8 @@ class Document < ActiveRecord::Base
   #pattern = /\b[A-Z]{2,}\b/ # restrictive
   #pattern = /\b([A-Z,0-9][A-z,0-9,-]+[A-Z,0-9](s)?)\b/ # liberal, 3-letter minimum, can starwith number
   # don't need the \b, knowing that the char inside is \w
-  PATTERN = /[\W]([A-Z][A-z,0-9,&-+]*[A-Z,0-9,+-](s)?)[\W]/ # liberal, 2-letter minimum, musstart with letter
+  # /[\W]([A-Z][A-z,0-9,&-+]*[A-Z,0-9+-](s)?)[\W]/ fails -- the comma counts
+  PATTERN = /[\W]([A-Z][A-z0-9&-+]*[A-Z0-9+-](s)?)[\W]/ # liberal, 2-letter minimum, musstart with letter
   #pattern = /\b([A-Z][A-z,0-9,&-]*[A-Z,0-9](s)?)\b/ # liberal, 2-letter minimum, must starwith letter
   ################################################################
 
@@ -306,7 +307,7 @@ class Document < ActiveRecord::Base
   def get_context(ac, text)
     index = get_index(ac, text) # returns char 2 before acronym if bracketed
     
-    raise "#{ac} not found" unless index
+    raise "Acronym #{ac} not re-found in the text document" unless index
 
     start = (index - CONTEXT) < 0 ? 0 : index - CONTEXT
     finish = (index + ac.length + CONTEXT) > text.length ? text.length : index + ac.length + CONTEXT
