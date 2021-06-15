@@ -74,7 +74,19 @@ class Document < ActiveRecord::Base
   #pattern = /\b([A-Z,0-9][A-z,0-9,-]+[A-Z,0-9](s)?)\b/ # liberal, 3-letter minimum, can starwith number
   # don't need the \b, knowing that the char inside is \w
   # /[\W]([A-Z][A-z,0-9,&-+]*[A-Z,0-9+-](s)?)[\W]/ fails -- the comma counts
-  PATTERN = /[\W]([A-Z][A-z0-9&-+]*[A-Z0-9+-](s)?)[\W]/ # liberal, 2-letter minimum, musstart with letter
+
+  # Note that A-z includes square brackets
+
+  # Retired on 15.6.21:
+  #   Because: it matches R[E
+  #   PATTERN = /[\W]([A-Z][A-z0-9&-+]*[A-Z0-9+-](s)?)[\W]/ # liberal, 2-letter minimum, 
+
+  # Retired on 15.6.21:
+  #   Because: it matches Australia-
+  #   PATTERN = /[\W]([A-Z][a-zA-Z0-9&-+]*[A-Z0-9+-](s)?)[\W]/ # liberal, 2-letter minimum, 
+
+  PATTERN = /[\W]([A-Z][a-zA-Z0-9&-+]*[A-Z][0-9+-]?(s)?)[\W]/ # liberal, 2-letter minimum, must start with letter and have another capital before the end junk
+
   #pattern = /\b([A-Z][A-z,0-9,&-]*[A-Z,0-9](s)?)\b/ # liberal, 2-letter minimum, must starwith letter
   ################################################################
 
@@ -88,6 +100,11 @@ class Document < ActiveRecord::Base
   def self.log(doc) # record basic details about this document, since the record will expire
     @@document_log ||= Logger.new Rails.root.join('log', 'document_uploads.log')
     @@document_log.info "#{File.basename doc.file_url}" # [dict: #{doc.dictionary_id.to_s}]"
+  end
+
+  def log_pathcronym(ac)
+    @@pathcronym_log ||= Logger.new Rails.root.join('log', 'acronyms_causing_errors.log')
+    @@pathcronym_log.error ac
   end
 
   def trawl
@@ -276,14 +293,39 @@ class Document < ActiveRecord::Base
 
   private
 
+  def escape(ac)
+    # The following characters must be escaped when put into a regexp:
+    # ^ $ ? * + - .
+    # At present, I think only + and - should show up in an acronym
+    ac.gsub('-', '\-').gsub('+', '\+')
+  end
+
   def location_of_bracketed(ac, text) # index of first bracketed instance
-    loc = (text =~ /\(#{ac}\)/)
+    # The following line has raised
+    #   RegexpError (premature end of char-class: /\(R[E\)/):
+    #   i.e. there is a danger of ac containing an opening square bracket or
+    #   other dangerous regexp character
+    # begin
+    loc = ( text =~ /\(#{escape(ac)}\)/ )
+    # rescue RegexpError => e
+    #   # TODO: log the pathcronym
+    #   log_pathcronym(ac)
+    #   return nil
+    # end
     return loc+1 if loc # The regexg will show the location of the parethesis
     nil
   end
 
   def location_of_first_use(ac, text)
-    text =~ /\b#{ac}\b/
+    # Rescuing this error doesn't currently help, just obscurs where the error is
+    # begin
+    # \W: any non-word character
+    loc = ( text =~ /\W#{escape(ac)}\W/ )
+    return loc+1
+    # rescue RegexpError => e
+    #   log_pathcronym(ac)
+    #   nil
+    # end
   end
 
   def get_index(ac, text)
@@ -295,7 +337,7 @@ class Document < ActiveRecord::Base
   end
 
   def bracketed_on_first_use?(ac, text) # Is the acronym in brackets the first time it appears?
-    text =~ /.#{ac}./ # first match
+    text =~ /.#{escape(ac)}./ # first match
     ($1 == "(#{ac})")
   end
 
