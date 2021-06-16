@@ -65,6 +65,16 @@ class Definition < ActiveRecord::Base
     return 2
   end
 
+  def sentence_case!
+    self.meaning = self.meaning.humanize
+    self.save!
+  end
+
+  def titlecase!
+    self.meaning = self.meaning.titlecase
+    self.save!
+  end
+
   private
   def identical_to?(other)
     raise "Comparison with self makes no sense" if id == other.id
