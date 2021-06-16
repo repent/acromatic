@@ -67,6 +67,15 @@ gem 'carrierwave'
 # markdown
 gem 'redcarpet'
 
+# all the document formats
+gem 'pandoc-ruby'
+
+# Use ActiveModel has_secure_password
+# gem 'bcrypt', '~> 3.1.7'
+
+# Use Unicorn as the app server
+# gem 'unicorn'
+
 gem 'pry'
 gem 'pry-rails'
 # gem 'rmagick'
@@ -105,7 +114,7 @@ group :development do
 
   # Adds detail on the database schema to the top of model descriptions
   # Usage: annotate
-  gem 'annotate'
+  gem 'annotate_models'
   #gem 'annotate_rails'
 
   # Use Capistrano for deployment
