@@ -1,5 +1,6 @@
 class DefinitionsController < ApplicationController
-  before_action :set_definition, only: [:show, :edit, :update, :destroy]
+  before_action :set_definition, only: [:show, :edit, :update, :destroy, :sentence_case, 
+    :titlecase]
   before_action :authenticate_user!
 
   # GET /definitions
@@ -23,6 +24,18 @@ class DefinitionsController < ApplicationController
   def edit
   end
 
+  # GET /definitions/1/sentence_case
+  def sentence_case
+    @definition.sentence_case!
+    redirect_to @definition.dictionary || @definition
+  end
+
+  # GET/definitions/1/title_case
+  def titlecase
+    @definition.titlecase!
+    redirect_to @definition.dictionary || @definition
+  end
+
   # POST /definitions
   # POST /definitions.json
   def create
@@ -44,7 +57,7 @@ class DefinitionsController < ApplicationController
   def update
     respond_to do |format|
       if @definition.update(definition_params)
-        format.html { redirect_to @definition, notice: 'Definition was successfully updated.' }
+        format.html { redirect_to @definition.dictionary || @definition, notice: 'Definition was successfully updated.' }
         format.json { render :show, status: :ok, location: @definition }
       else
         format.html { render :edit }

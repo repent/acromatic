@@ -1,6 +1,11 @@
 Rails.application.routes.draw do
   devise_for :users, controllers: { registrations: 'registrations' }
-  resources :definitions
+  resources :definitions do
+    member do
+      get 'sentence_case'
+      get 'titlecase'
+    end
+  end
   resources :dictionaries do
     member do
       get 'merge_duplicates'
