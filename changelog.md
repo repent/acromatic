@@ -1,3 +1,11 @@
+# 6/21
+
+Added pandoc as a parser, which can use .odt but not much else of use (not PDF or RTF, both of which it can write).
+
+# 6/21
+
+No longer catch hyphens in or at the end under any circumstances -- it wasn't working anyway and is questionable whether it should (lots of ambiguous cases).  (#40)
+
 # 4/17
 
 Fix #4, files with .DOCX extension failed with UTF-8 error
