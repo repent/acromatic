@@ -6,4 +6,4 @@ See https://acromatic.uk for a usable online instance.
 
 ## Dependencies on Debian Stretch
 
-    apt-get install docx2txt
+    apt install docx2txt
