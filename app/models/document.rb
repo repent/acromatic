@@ -85,7 +85,13 @@ class Document < ActiveRecord::Base
   #   Because: it matches Australia-
   #   PATTERN = /[\W]([A-Z][a-zA-Z0-9&-+]*[A-Z0-9+-](s)?)[\W]/ # liberal, 2-letter minimum, 
 
-  PATTERN = /[\W]([A-Z][a-zA-Z0-9&-+]*[A-Z][0-9+-]?(s)?)[\W]/ # liberal, 2-letter minimum, must start with letter and have another capital before the end junk
+  # Failing on 24.6.21:
+  #   Because: IS-LM shows up as "IS" and "LM" separately
+  #   PATTERN = /[\W]([A-Z][a-zA-Z0-9&-+]*[A-Z][0-9+-]?(s)?)[\W]/ # liberal, 2-letter minimum, must start with letter and have another capital before the end junk
+
+  # 24.6.21: Hyphen has been cut out completely, inside and at end
+  # so IS-LM picks up IS and LM separately
+  PATTERN = /[\W]([A-Z][a-zA-Z0-9&]*[A-Z][0-9+]?(s)?)[\W]/ # liberal, 2-letter minimum, must start with letter and have another capital before the end junk
 
   #pattern = /\b([A-Z][A-z,0-9,&-]*[A-Z,0-9](s)?)\b/ # liberal, 2-letter minimum, must starwith letter
   ################################################################

@@ -8,6 +8,6 @@
         - @document.errors.full_messages.each do |message|
           %li= message
   .actions
-    = render partial: 'options', locals: {f: f}
+    = render partial: 'options', locals: { f: f, guess_meanings: true }
     %p= f.file_field :file
     %p= f.submit value: 'Upload'
