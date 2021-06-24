@@ -34,7 +34,12 @@ class DocumentsController < ApplicationController
   # POST /documents
   # POST /documents.json
   def create
-    @document = Document.new(document_params)
+    begin
+      @document = Document.new(document_params)
+    rescue StandardError => e
+      redirect_to(:back, alert: "Document error: #{e.message}") and return
+      binding.pry
+    end
 
     respond_to do |format|
       if @document.save
