@@ -6,6 +6,19 @@ class FileUploader < CarrierWave::Uploader::Base
   # include CarrierWave::RMagick
   # include CarrierWave::MiniMagick
 
+  # "Unknown reader: pdf Pandoc can convert to PDF, but not from PDF."
+  # "Unknown reader: rtf"
+  PANDOC_FILETYPES = [
+    :docx,
+    # :rtf,
+    :pdf,
+    :odt
+  ]
+
+  # PANDOC_EXTENSIONS = [
+  #   'odt'
+  # ]
+
   # Choose what kind of storage to use for this uploader:
   storage :file
   # storage :fog
@@ -14,6 +27,10 @@ class FileUploader < CarrierWave::Uploader::Base
   # This is a sensible default for uploaders that are meant to be mounted:
   def store_dir
     "uploads/#{model.class.to_s.underscore}/#{mounted_as}/#{model.id}"
+  end
+
+  def extension_white_list
+    %w( docx pdf odt doc html )
   end
 
   # Provide a default URL as a default if there hasn't been a file uploaded:
@@ -32,7 +49,9 @@ class FileUploader < CarrierWave::Uploader::Base
   # end
 
   def to_text
-    raise "docx2txt has not been installed" unless system('which docx2txt')
+    unless pandoc? or docx2text?
+      raise "Cannot find either docx2txt or pandoc -- at least one must be installed"
+    end
     #################################################################################
     # Document must end in .docx (case sensitive) in order for the old jiggery-pokery
     # to work
@@ -56,14 +75,28 @@ class FileUploader < CarrierWave::Uploader::Base
     #
     # Note:   infile.docx can also be a directory name holding the unzipped content
     #         of concerned .docx file.
+    if pandoc?
+      #binding.pry
+      extension = File.extname(current_path)
 
-    txt_path = current_path.sub(/docx$/i, 'txt')
-    # Explicitly define destination because otherwise docx2txt is inconsistent
-    # At this point the .docx is ONLY in public/uploads/tmp/
-    `docx2txt < "#{current_path}" > "#{txt_path}"`
-    # Still only in tmp
-    File.rename txt_path, current_path
-    # At some point after this, the two files get moved over to public/uploads/document/file/xxx
+      file_type = extension.downcase.delete_prefix('.').to_sym
+
+      raise "unknown file type (#{file_type})" unless PANDOC_FILETYPES.include? file_type
+
+      #txt_path = File.join( File.dirname(current_path), File.basename(current_path, extension) + '.md' )
+
+      output = PandocRuby.new([current_path], from: file_type).to_commonmark
+
+      File.write(current_path, output)
+    else
+      txt_path = current_path.sub(/docx$/i, 'txt')
+      # Explicitly define destination because otherwise docx2txt is inconsistent
+      # At this point the .docx is ONLY in public/uploads/tmp/
+      `docx2txt < "#{current_path}" > "#{txt_path}"`
+      # Still only in tmp
+      File.rename txt_path, current_path
+      # At some point after this, the two files get moved over to public/uploads/document/file/xxx
+    end
   end
 
   # Create different versions of your uploaded files:
@@ -86,4 +119,9 @@ class FileUploader < CarrierWave::Uploader::Base
   #   "something.jpg" if original_filename
   # end
 
+  private
+
+  def docx2text?; !!system('which docx2txt'); end
+
+  def pandoc?; !!system('which pandoc'); end
 end

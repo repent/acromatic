@@ -78,6 +78,14 @@ class Document < ActiveRecord::Base
   # 20.10.21: named groups have been added, and the first one is exclusive of the plural
   PATTERN = /[\W](?<acronym>[A-Z][a-zA-Z0-9\&\+]*[A-Z][0-9\+]*)(?<plural>s)?[\W]/ # liberal, 2-letter minimum, must start with letter and have another capital before the "end junk", which can only contain numbers/pluses (to avoid camelcase)
 
+  # Retired on 15.6.21:
+  #   Because: it matches R[E
+  #   PATTERN = /[\W]([A-Z][A-z0-9&-+]*[A-Z0-9+-](s)?)[\W]/ # liberal, 2-letter minimum, 
+
+  # Retired on 15.6.21:
+  #   Because: it matches Australia-
+  #   PATTERN = /[\W]([A-Z][a-zA-Z0-9&-+]*[A-Z0-9+-](s)?)[\W]/ # liberal, 2-letter minimum, 
+
   #pattern = /\b([A-Z][A-z,0-9,&-]*[A-Z,0-9](s)?)\b/ # liberal, 2-letter minimum, must starwith letter
   ##################################################################################################
 
