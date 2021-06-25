@@ -134,6 +134,11 @@ class Document < ActiveRecord::Base
       # initialism_as_found includes a plural so that when displayed alongside the saved context the text still makes sense
       initialism_as_found = ac[0]
 
+      binding.pry if !$~
+      match_index = $~.offset(0)
+      # => [65, 73]
+
+      # ac ceeases to be an array at this point:
       ac = ac[0]
       ac = ac[0...-1] if ac[-1] == 's'
 
@@ -206,7 +211,12 @@ class Document < ActiveRecord::Base
       #finish = (index + CONTEXT) > text.length ? text.length : index + CONTEXT
       #context_before = text[start...index] # used for display
       #context_after  = text[(index+ac.length)...finish] # display
-      context = get_context(initialism_as_found, text)
+
+      # TODO: This is getting either first bracketed use or first use each time --
+      # so the same piece of context is being scanned every time the acronym crops up
+
+      #context = get_early_context(initialism_as_found, text)
+      context = get_context_by_index(match_index, text)
       #############################################################################################
 
       ############################################################################################
@@ -224,7 +234,9 @@ class Document < ActiveRecord::Base
       # Perhaps better for "meaning" not to be a db field of an acronym but a pseudo
       # built on demand from the current dictionary
       #meaning = dictionary ? dictionary.lookup(ac) : nil
+
       meaning = if bracketed?(initialism_as_found, text) and guess_meanings
+        # TODO: this seems to get called multiple times (5-10) during the same run
         get_meaning(initialism_as_found, context.before.chomp('(').rstrip)
       else
         nil
@@ -357,7 +369,7 @@ class Document < ActiveRecord::Base
     !!location_of_bracketed(ac, text)
   end
 
-  def get_context(ac, text)
+  def get_early_context(ac, text)
     index = get_index(ac, text) # returns char 2 before acronym if bracketed
     
     raise "Acronym #{ac} not re-found in the text document" unless index
@@ -367,6 +379,20 @@ class Document < ActiveRecord::Base
 
     Context.new( text[start...index],
       text[(index+ac.length)...finish]
+    )
+  end
+
+  def get_context_by_index(match_index, text)
+    # match_index is a 2-element array: [start, end]
+    start_that_could_be_negavite = (match_index[0] - CONTEXT)
+    start = start_that_could_be_negavite < 0 ? 0 : start_that_could_be_negavite
+
+    # A string can safeuly be sliced out of range (as long as the start is in range)
+    #{ }"foobar"[2..20] => "obar"
+    finish = (match_index[1] + CONTEXT)
+
+    Context.new( text[start...match_index[0]],
+      text[(match_index[1]...finish)]
     )
   end
 

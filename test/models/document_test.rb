@@ -36,6 +36,9 @@ class DocumentTest < ActiveSupport::TestCase
     [ 'all your base',  'AYB',  " we belong all your and base " ],
     [ 'my first time',  'MFT',  " my of first and time" ],
     [ 'all if cheese',  'AIC',  " all the if of cheese" ],
+    [ "physician's assistant", "PA", " Department for processing. After the physician's assistants" ],
+    [ "College of American Pathologists", 'CAP', 'ional Requirements of the College of American Pathologists' ],
+    [ "Papua New Guinea", "PNG", "vessels that fish in Papua New Guinea's" ],
   ]
 
   test_cases.each do |answer, ac, st|
