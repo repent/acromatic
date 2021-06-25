@@ -369,11 +369,13 @@ class Document < ActiveRecord::Base
     if ac =~ /(.*)s$/ then $1 else ac end
   end
 
+  public # for testing
+
   # get_meaning singularises ac before digging
   def get_meaning(ac, previous_text)
     # If ac is plural, then kill the final s before searching for the longhand
     # because MDAs doesn't expand as M*** D** A***** S**.
-    incidentals = %W( for in of and )
+    incidentals = %W( for in of and the a an )
     @guesslog ||= Logger.new Rails.root.join 'log', 'guessing_meaning_of_acronyms.log'
 
     # . does not match newlines, (and * is greedy) so this grabs the foregoing paragraph
@@ -388,11 +390,17 @@ class Document < ActiveRecord::Base
     #total_definition_length = 100
     #maximum_word_length = 12
     # en-dash is not actually useful -- it seems that the docx2txt converts en-dashes to ' - '
-    divider = '[\s\-]' # Old skool - works, but is limited
+    divider = '[\s\-]+' # Old skool - works, but is limited
     #divider = '[\s\-]+' # trying to catch garbled "public - private partnership"
     word = '\w+' #"\w{1,#{maximum_word_length}"
     case_sensitivity = Regexp::IGNORECASE # right more often than not?
     previous_text = previous_text.rstrip
+    previous_text_without_incidentals = previous_text.dup
+    incidentals.each do |i|
+      previous_text_without_incidentals.gsub!(/\s#{i}\b/, '')
+    end
+    puts previous_text
+    puts previous_text_without_incidentals
     definition_regexp = ''
     #byebug
     #singular_length = singular_length
@@ -412,6 +420,9 @@ class Document < ActiveRecord::Base
     if previous_text =~ definition_regexp
       meaning = $&
       @guesslog.info { "Matched '#{singular}' with '#{meaning}'" }
+    elsif previous_text_without_incidentals =~ definition_regexp
+      meaning = $&
+      @guesslog.info { "Matched '#{singular}' with '#{meaning}' by removing incidental words" }
     else
       text_to_log = 80
       shortened_text = previous_text.length > text_to_log ? previous_text[-text_to_log..-1] : previous_text
