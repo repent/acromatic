@@ -91,7 +91,7 @@ class Document < ActiveRecord::Base
 
   # 24.6.21: Hyphen has been cut out completely, inside and at end
   # so IS-LM picks up IS and LM separately
-  PATTERN = /[\W]([A-Z][a-zA-Z0-9&]*[A-Z][0-9+]?(s)?)[\W]/ # liberal, 2-letter minimum, must start with letter and have another capital before the end junk
+  PATTERN = /[\W]([A-Z][a-zA-Z0-9\&\+]*[A-Z][0-9\+]*(s)?)[\W]/ # liberal, 2-letter minimum, must start with letter and have another capital before the "end junk", which can only contain numbers/pluses (to avoid camelcase)
 
   #pattern = /\b([A-Z][A-z,0-9,&-]*[A-Z,0-9](s)?)\b/ # liberal, 2-letter minimum, must starwith letter
   ################################################################
@@ -287,6 +287,11 @@ class Document < ActiveRecord::Base
     #   puts "#{ac}#{star}"
     # end
   end
+
+  def find_first(search_text)
+    search_text =~ PATTERN
+    $1
+  end
   
   # acronyms returns everything, this filters with document settings
   def allowed_acronyms
@@ -399,8 +404,8 @@ class Document < ActiveRecord::Base
     incidentals.each do |i|
       previous_text_without_incidentals.gsub!(/\s#{i}\b/, '')
     end
-    puts previous_text
-    puts previous_text_without_incidentals
+    #puts previous_text
+    #puts previous_text_without_incidentals
     definition_regexp = ''
     #byebug
     #singular_length = singular_length

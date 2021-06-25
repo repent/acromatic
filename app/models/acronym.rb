@@ -91,7 +91,9 @@ class Acronym < ActiveRecord::Base
     self.plural_only
   end
   def hyphens? # or ampersands, or plus signs
-    self.initialism =~ /[\-\&\+]/
+    #self.initialism =~ /[\-\&\+]/
+    # internal hyphens and plus signs cause problems
+    self.initialism =~ /[\&\+]/
   end
   def numbers?
     self.initialism =~ /[0-9]/
