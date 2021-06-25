@@ -36,9 +36,15 @@ class DocumentTest < ActiveSupport::TestCase
     [ 'all your base',  'AYB',  " we belong all your and base " ],
     [ 'my first time',  'MFT',  " my of first and time" ],
     [ 'all if cheese',  'AIC',  " all the if of cheese" ],
-    [ "physician's assistant", "PA", " Department for processing. After the physician's assistants" ],
-    [ "College of American Pathologists", 'CAP', 'ional Requirements of the College of American Pathologists' ],
+    [ "physician's assistants", "PA", " Department for processing. After the physician's assistants" ],
     [ "Papua New Guinea", "PNG", "vessels that fish in Papua New Guinea's" ],
+    [ "Kiribati Fish Ltd.", 'KFL', 'requires 30% of all yellowfin be landed to Kiribati Fish Ltd.' ],
+    # Incidentals
+    [ "College of American Pathologists", 'CAP', 'ional Requirements of the College of American Pathologists' ],
+    [ "all the way home", "AWH", "I don't know how we'd ever manage to get all the way home"],
+    # Plurals
+    [ 'all about cows', 'AACs',  "I am all about cows " ],
+    [ 'on the runs',    'OTRs',  "everyone is on the runs" ],
   ]
 
   test_cases.each do |answer, ac, st|
@@ -63,12 +69,13 @@ class DocumentTest < ActiveSupport::TestCase
     [ "\nPACER+ ftl!", 'PACER+' ],
     [ "Our priority is S+DT, isn't it?", "S+DT"],
     [ "Our priority is S&DT, isn't it?", "S&DT"],
-    [ 'Do you have a copy of the ToRs?', 'ToRs' ],
     [ 'Are we talking CamelCase or AusAID? ', 'AusAID' ],
     [ 'Are you still using IS-LM to model that toaster?', 'IS' ],
     [ 'What about a programme like BICF2, would that work?', 'BICF2' ],
     [ "What is the deal with TAF2+ these days?", "TAF2+" ],
     [ "Go go go USA2024!", "USA2024" ],
+    # Plurals
+    [ 'Do you have a copy of the ToRs?', 'ToRs' ],
     #[ '', '' ],
   ]
 

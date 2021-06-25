@@ -66,6 +66,13 @@ class Document < ActiveRecord::Base
 
   CONTEXT = 60
 
+  BRACKETS = [
+    [ '[', ']' ],
+    [ '(', ')' ],
+    [ '<', '>' ],
+    [ '{', '}' ],
+  ]
+
   Context = Struct.new(:before, :after)
 
   ################################################################
@@ -133,6 +140,8 @@ class Document < ActiveRecord::Base
       singular = !plural
       # initialism_as_found includes a plural so that when displayed alongside the saved context the text still makes sense
       initialism_as_found = ac[0]
+
+      bracketed_here = bracketed_here?($~.to_s)
 
       binding.pry if !$~
       match_index = $~.offset(0)
@@ -212,11 +221,8 @@ class Document < ActiveRecord::Base
       #context_before = text[start...index] # used for display
       #context_after  = text[(index+ac.length)...finish] # display
 
-      # TODO: This is getting either first bracketed use or first use each time --
-      # so the same piece of context is being scanned every time the acronym crops up
-
       #context = get_early_context(initialism_as_found, text)
-      context = get_context_by_index(match_index, text)
+      context = get_context_by_index(match_index, text, 100)
       #############################################################################################
 
       ############################################################################################
@@ -235,9 +241,12 @@ class Document < ActiveRecord::Base
       # built on demand from the current dictionary
       #meaning = dictionary ? dictionary.lookup(ac) : nil
 
-      meaning = if bracketed?(initialism_as_found, text) and guess_meanings
+      meaning = if bracketed_here and guess_meanings
         # TODO: this seems to get called multiple times (5-10) during the same run
-        get_meaning(initialism_as_found, context.before.chomp('(').rstrip)
+        #get_meaning(initialism_as_found, context.before.chomp('(').rstrip)
+        # if get_meaning is not plural-aware, it should probably be ac rather than
+        # initialism_as_found
+        get_meaning(initialism_as_found, context.before.rstrip)
       else
         nil
       end
@@ -277,7 +286,7 @@ class Document < ActiveRecord::Base
         existing_record.update( updates )
       else
         self.acronyms.push Acronym.create(
-          initialism: ac, context_before: context.before, context_after: context.after, bracketed: bracketed?(initialism_as_found, text),
+          initialism: ac, context_before: context.before, context_after: context.after, bracketed: bracketed_anywhere?(initialism_as_found, text),
             bracketed_on_first_use: bracketed_on_first_use?(initialism_as_found, text),
             meaning: meaning, plural_only: plural, defined_in_plural:
               ( plural && meaning.present? )
@@ -352,7 +361,7 @@ class Document < ActiveRecord::Base
   end
 
   def get_index(ac, text)
-    if bracketed?(ac, text)
+    if bracketed_anywhere?(ac, text)
       location_of_bracketed(ac, text)
     else
       location_of_first_use(ac, text)
@@ -364,9 +373,14 @@ class Document < ActiveRecord::Base
     ($1 == "(#{ac})")
   end
 
-  def bracketed?(ac, text) # Does the text contain the acronym in brackets anywhere?
+  def bracketed_anywhere?(ac, text) # Does the text contain the acronym in brackets anywhere?
     # Also check singular?
     !!location_of_bracketed(ac, text)
+  end
+
+  # ac_with_context = ' ABC ' or '(ABC)'
+  def bracketed_here?(ac_with_context)
+    BRACKETS.include?( [ ac_with_context[0], ac_with_context[-1] ] )
   end
 
   def get_early_context(ac, text)
@@ -382,14 +396,14 @@ class Document < ActiveRecord::Base
     )
   end
 
-  def get_context_by_index(match_index, text)
+  def get_context_by_index(match_index, text, chars_each_side=CONTEXT)
     # match_index is a 2-element array: [start, end]
-    start_that_could_be_negavite = (match_index[0] - CONTEXT)
+    start_that_could_be_negavite = (match_index[0] - chars_each_side)
     start = start_that_could_be_negavite < 0 ? 0 : start_that_could_be_negavite
 
     # A string can safeuly be sliced out of range (as long as the start is in range)
     #{ }"foobar"[2..20] => "obar"
-    finish = (match_index[1] + CONTEXT)
+    finish = (match_index[1] + chars_each_side)
 
     Context.new( text[start...match_index[0]],
       text[(match_index[1]...finish)]
@@ -404,9 +418,11 @@ class Document < ActiveRecord::Base
 
   # get_meaning singularises ac before digging
   def get_meaning(ac, previous_text)
+    explicit_incidentals = true
+
     # If ac is plural, then kill the final s before searching for the longhand
     # because MDAs doesn't expand as M*** D** A***** S**.
-    incidentals = %W( for in of and the a an )
+    incidentals = %W( for in of and the a an to )
     @guesslog ||= Logger.new Rails.root.join 'log', 'guessing_meaning_of_acronyms.log'
 
     # . does not match newlines, (and * is greedy) so this grabs the foregoing paragraph
@@ -414,21 +430,41 @@ class Document < ActiveRecord::Base
     #previous_text = $1.rstrip # used to decode acronyms
 
     # This check done before get_meaning is called
-    #return nil unless bracketed?(ac, text)
+    #return nil unless bracketed_anywhere?(ac, text)
 
     meaning = nil
     singular = get_singular(ac)
     #total_definition_length = 100
     #maximum_word_length = 12
-    # en-dash is not actually useful -- it seems that the docx2txt converts en-dashes to ' - '
+
     divider = '[\s\-]+' # Old skool - works, but is limited
-    #divider = '[\s\-]+' # trying to catch garbled "public - private partnership"
-    word = '\w+' #"\w{1,#{maximum_word_length}"
+
+    #crazy_divider = %q|[\s\-]+|
+
+    # Fails:
+    #   9) Failure:
+    # DocumentTest#test_infer_meaning_of_acronym_AWH_from_text [/home/slack/ruby/acromatic/test/models/document_test.rb:53]:
+    # --- expected
+    # +++ actual
+    # @@ -1 +1 @@
+    # -"all the way home"
+    # +"anage to get all the way home"
+    permissive_divider = %q|[\s\-]+(\w+\s+)*|
+
+    # Word should include
+    #   apostrophe: physician's assistants
+    #   period: Kiribati Fishing Ltd.
+    #word = "[\w\.\']+" #"\w{1,#{maximum_word_length}"
+    word = %q([\w\.\']+) #"\w{1,#{maximum_word_length}"
     case_sensitivity = Regexp::IGNORECASE # right more often than not?
     previous_text = previous_text.rstrip
-    previous_text_without_incidentals = previous_text.dup
-    incidentals.each do |i|
-      previous_text_without_incidentals.gsub!(/\s#{i}\b/, '')
+
+    previous_text_without_incidentals = nil
+    if explicit_incidentals
+      previous_text_without_incidentals = previous_text.dup
+      incidentals.each do |i|
+        previous_text_without_incidentals.gsub!(/\s#{i}\b/, '')
+      end
     end
     #puts previous_text
     #puts previous_text_without_incidentals
@@ -441,7 +477,11 @@ class Document < ActiveRecord::Base
       definition_regexp += word
       # Separator
       unless singular.length == (i + 1) # i is zero-indexed
-        definition_regexp += divider
+        if explicit_incidentals
+          definition_regexp += divider
+        else
+          definition_regexp += permissive_divider
+        end
       end
     end
     # The definition *must* be immediately before the brackets, (ignoring spaces) --
@@ -451,7 +491,7 @@ class Document < ActiveRecord::Base
     if previous_text =~ definition_regexp
       meaning = $&
       @guesslog.info { "Matched '#{singular}' with '#{meaning}'" }
-    elsif previous_text_without_incidentals =~ definition_regexp
+    elsif explicit_incidentals and previous_text_without_incidentals =~ definition_regexp
       meaning = $&
       @guesslog.info { "Matched '#{singular}' with '#{meaning}' by removing incidental words" }
     else
