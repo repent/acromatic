@@ -89,11 +89,18 @@ class Document < ActiveRecord::Base
 
   # Failing on 24.6.21:
   #   Because: IS-LM shows up as "IS" and "LM" separately
-  #   PATTERN = /[\W]([A-Z][a-zA-Z0-9&-+]*[A-Z][0-9+-]?(s)?)[\W]/ # liberal, 2-letter minimum, must start with letter and have another capital before the end junk
+  #   PATTERN = /[\W]([A-Z][a-zA-Z0-9&-+]*[A-Z][0-9+-]?(s)?)[\W]/ # liberal, 2-letter minimum, must
+  #   start with letter and have another capital before the end junk
 
-  # 24.6.21: Hyphen has been cut out completely, inside and at end
-  # so IS-LM picks up IS and LM separately
-  PATTERN = /[\W](?<acronym>[A-Z][a-zA-Z0-9\&\+]*[A-Z][0-9\+]*(?<plural>s)?)[\W]/ # liberal, 2-letter minimum, must start with letter and have another capital before the "end junk", which can only contain numbers/pluses (to avoid camelcase)
+  # Retired on 20.10.21:
+  #   Because: refactoring is using named acronyms and finding the plural as ac[0] as documented
+  #   24.6.21: Hyphen has been cut out completely, inside and at end
+  #   so IS-LM picks up IS and LM separately
+  #   PATTERN = /[\W]([A-Z][a-zA-Z0-9\&\+]*[A-Z][0-9\+]*(s)?)[\W]/ # liberal, 2-letter minimum,
+  #   must start with letter and have another capital before the "end junk", which can only contain numbers/pluses (to avoid camelcase)
+
+  # 20.10.21: named groups have been added, and the first one is exclusive of the plural
+  PATTERN = /[\W](?<acronym>[A-Z][a-zA-Z0-9\&\+]*[A-Z][0-9\+]*)(?<plural>s)?[\W]/ # liberal, 2-letter minimum, must start with letter and have another capital before the "end junk", which can only contain numbers/pluses (to avoid camelcase)
 
   #pattern = /\b([A-Z][A-z,0-9,&-]*[A-Z,0-9](s)?)\b/ # liberal, 2-letter minimum, must starwith letter
   ################################################################
@@ -113,6 +120,11 @@ class Document < ActiveRecord::Base
   def log_pathcronym(ac)
     @@pathcronym_log ||= Logger.new Rails.root.join('log', 'acronyms_causing_errors.log')
     @@pathcronym_log.error ac
+  end
+
+  # Array of strings derived from db
+  def initialisms
+    self.acronyms.map { |a| a.initialism }.sort
   end
 
   # Can pass text in (for testing) or will use the text version of this document
@@ -146,8 +158,9 @@ class Document < ActiveRecord::Base
     # By this point the files have been moved to their final location in
     # uploads/document/file/xxx
 
+    # A simple dictionary derived from this document, which will be processed in memory until the
+    # end of this method, then written to the db
     doc_dict = Hash.new
-    acronyms_in_memory = []
 
     # Do stuff each time an acronym is found in the code
     each_acronym(source_text) do |acronym, plural, context|
@@ -155,7 +168,7 @@ class Document < ActiveRecord::Base
       # NEW VERSION (incomplete)
 
       singular = !plural
-      acronym_as_found = plural ? "#{acronym}s" : acronym
+      initialism_as_found = plural ? "#{acronym}s" : acronym
 
       next if doc_dict.has_key?(acronym) and MEANING_STRATEGY == :on_first_use
 
@@ -164,9 +177,11 @@ class Document < ActiveRecord::Base
 
       meaning = guess_meanings ? get_meaning(acronym, context) : ''
 
-      acronyms_in_memory << Acronym.new(
-        initialism: acronym_as_found,
+      doc_dict[initialism_as_found] = Acronym.new(
+        initialism: initialism_as_found,
         meaning: meaning,
+        context_before: context.before,
+        context_after: context.after,
         plural_only: plural,
         defined_in_plural: plural,
         bracketed: bracketed?(initialism_as_found, source_text),
@@ -175,21 +190,12 @@ class Document < ActiveRecord::Base
     end
 
     # merge plurals/singulars (method)
-    remove_superfluous_plurals!(acronyms_in_memory)
+    remove_superfluous_plurals!(doc_dict)
 
     # write acronyms to database
-    acronyms_in_memory.each do |acronym|
+    doc_dict.each do |_, acronym|
       self.acronyms << acronym
     end
-       Acronym.create(
-        initialism: acronym,
-        context_before: context.before,
-        context_after: context.after,
-        bracketed: bracketed?(initialism_as_found, text),
-        bracketed_on_first_use: bracketed_on_first_use?(initialism_as_found, text),
-        meaning: meaning,
-        plural_only: plural,
-        defined_in_plural: plural && meaning.present? )
 
     # look up meaningless acronyms in dictionary (when viewed)
   end
@@ -199,15 +205,17 @@ class Document < ActiveRecord::Base
   # Merge plural data into singular wherever possible
   # Modifies hash in place
   def remove_superfluous_plurals!(acronym_hash)
-    acronym_hash.select { |k, _| k =~ /s$/ }.each do |k, v|
-      singular = k.chop
+    acronym_hash.select { |k, _| k =~ /s$/ }.each do |plural, v|
+      singular = plural.chop
       if acronym_hash[singular]
-        acronym_hash[singular] = merge_singular_and_plural(acronym_hash[singular], acronym_hash[k])
-        acronym_hash[k].delete
+        acronym_hash[singular] =
+          merge_singular_and_plural(acronym_hash[singular], acronym_hash[plural])
+        acronym_hash.delete(plural)
       end
     end
   end
 
+  # Does not take care of deleting the plural, only returns a merged version
   # -> Acronym (of singular)
   def merge_singular_and_plural(singular, plural)
     if plural.meaning.present? and !singular.meaning.present?

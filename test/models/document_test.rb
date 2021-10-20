@@ -17,17 +17,10 @@
 #
 
 require 'test_helper'
-#require 'ruby-debug' # if ENV['DEBUG']
+require 'pry'
 
 class DocumentTest < ActiveSupport::TestCase
-  # test "the truth" do
-  #   assert true
-  # end
-  #test "find an acronym" do
-  #  finds = "Search this sentence FOR an acronym.".scan(Document.pattern)
-  #  assert finds[0] == 'FOR'
-  #  byebug
-  #end
+
   d = Document.new
 
   test_cases = [
@@ -75,11 +68,11 @@ class DocumentTest < ActiveSupport::TestCase
   search_text = [
     [ 'get the AC working', 'AC' ],
     [ 'Never mind the old • IOTC–2018–S22–R[E]. 114 p., it is nuts', 'IOTC' ],
-    [ 'What about the PICs- and all that?', 'PICs' ],
+    [ 'What about the PICs- and all that?', 'PIC' ],
     [ "\nPACER+ ftl!", 'PACER+' ],
     [ "Our priority is S+DT, isn't it?", "S+DT"],
     [ "Our priority is S&DT, isn't it?", "S&DT"],
-    [ 'Do you have a copy of the ToRs?', 'ToRs' ],
+    [ 'Do you have a copy of the ToRs?', 'ToR' ],
     [ 'Are we talking CamelCase or AusAID? ', 'AusAID' ],
     [ 'Are you still using IS-LM to model that toaster?', 'IS' ],
     [ 'What about a programme like BICF2, would that work?', 'BICF2' ],
@@ -94,18 +87,22 @@ class DocumentTest < ActiveSupport::TestCase
     end
   end
 
-  # require 'pry'
-  # binding.pry
-
   textfile_path = 'test/textfiles'
+  answer_path = 'test/answers'
 
-  source_textfiles = Dir.new('test/textfiles').children.map do |f|
+  source_textfiles = Dir.new(textfile_path).children.map do |f|
     [f, File.readlines(File.join(textfile_path, f)).join]
+  end
+
+  require 'yaml'
+
+  expected_findings = Dir.new(answer_path).children.map do |f|
+    YAML.load(File.readlines(File.join(answer_path, f)).join)
   end
 
   #expected_findings = Dir.new('results').children.map do |f|
 
-  source_textfiles.each do |filename, text|
+  source_textfiles.zip(expected_findings).each do |(filename, text), answers|
     test "each_acronym finds something roughly sensible for #{filename}" do
       d.each_acronym(text) do |ac, plural, context|
         assert( (plural == true or plural == false) )
@@ -116,6 +113,12 @@ class DocumentTest < ActiveSupport::TestCase
         #   assert(c.length.between?(50, 70))
         # end
       end
+    end
+
+    test "all acronyms in #{filename} are found" do
+      d = Document.create()
+      d.trawl(text)
+      assert_equal answers, d.initialisms
     end
   end
 end
