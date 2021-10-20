@@ -45,6 +45,8 @@ gem 'redcarpet'
 gem 'pry'
 gem 'pry-rails'
 # gem 'rmagick'
+
+# This is currently required by carrierwave; it might be removable
 # gem 'mini_magick'
 
 # User authentication
