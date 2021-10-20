@@ -4,7 +4,7 @@ class FileUploader < CarrierWave::Uploader::Base
 
   # Include RMagick or MiniMagick support:
   # include CarrierWave::RMagick
-  include CarrierWave::MiniMagick
+  # include CarrierWave::MiniMagick
 
   # Choose what kind of storage to use for this uploader:
   storage :file
@@ -44,16 +44,16 @@ class FileUploader < CarrierWave::Uploader::Base
     # Usage:  /usr/bin/docx2txt [infile.docx|-|-h] [outfile.txt|-]
     #         /usr/bin/docx2txt < infile.docx
     #         /usr/bin/docx2txt < infile.docx > outfile.txt
-    # 
+    #
     #         In second usage, output is dumped on STDOUT.
-    # 
+    #
     #         Use '-h' as the first argument to get this usage information.
-    # 
+    #
     #         Use '-' as the infile name to read the docx file from STDIN.
-    # 
+    #
     #         Use '-' as the outfile name to dump the text on STDOUT.
     #         Output is saved in infile.txt if second argument is omitted.
-    # 
+    #
     # Note:   infile.docx can also be a directory name holding the unzipped content
     #         of concerned .docx file.
 
