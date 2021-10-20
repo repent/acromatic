@@ -77,4 +77,22 @@ class DocumentTest < ActiveSupport::TestCase
       assert_equal answer, d.find_first(st)
     end
   end
+
+  source_textfiles = Dir.new('textfiles').children.map do |f|
+    File.readlines(f).join
+  end
+
+  #expected_findings = Dir.new('results').children.map do |f|
+
+  text_document = Document.new
+
+  source_textfiles.each do |text|
+    test "each_acronym is finding the right acronyms" do
+      test_document.each_acronym do |ac, plural, context|
+        puts ac
+        puts plural
+        puts context
+      end
+    end
+  end
 end

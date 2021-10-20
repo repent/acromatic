@@ -20,42 +20,42 @@
 # to refresh run annotate
 
 # A note on plurals
-# 
+#
 # CamelCase never counts as an acronym, so ToRs can *only* be a plural.
 # It won't be caught otherwise.
-# 
+#
 # Some people pluralise legitimately singular acronyms (e.g. NGO, NGOs
 # both used in same document).  Here you would normally only list NGO in
 # the list, *even if it doesn't appear as a singular in the document*.
 # This is not critical though.
-# 
+#
 # Some people use plurals that they wouldn't use in singular, e.g. TORs
 # (meaning terms of reference, rather than multiple sets of terms of
 # reference).  Here they should be listed as plural in the definitions.
-# 
+#
 # So, Acromatic's behaviour should be:
-# 
+#
 # If only singular exists, list the singular in the definitions.
-# 
+#
 # If only a plural exists, list a plural in the definitions.
-# 
+#
 # If both exist, treat them separately, in parallel.
-# 
+#
 # Ignore the following rabbit hole!...
-# 
+#
 # If both singluar and plurals exist in the same document   * Search for
 # meaning against singular first, then plural (even if the plural def
 # comes first -- though this is for convenience, if both are defined I
 # can't see how it matters which def is used)   * List only one in the
 # definitions, ideally singular     * What if you only have the
 # definition for the plural?
-# 
+#
 # Alternatives:   * treat them as separate (list TOR with def, and TORs
 # with def if they are both defined, let the user sort this out)   *
 # make lots of assumptions   * permit user to apply a set of
 # assumptions, or go with (1) -- but this might have to happen at parse
 # time
-# 
+#
 # Argh.
 
 class Document < ActiveRecord::Base
@@ -79,11 +79,11 @@ class Document < ActiveRecord::Base
 
   # Retired on 15.6.21:
   #   Because: it matches R[E
-  #   PATTERN = /[\W]([A-Z][A-z0-9&-+]*[A-Z0-9+-](s)?)[\W]/ # liberal, 2-letter minimum, 
+  #   PATTERN = /[\W]([A-Z][A-z0-9&-+]*[A-Z0-9+-](s)?)[\W]/ # liberal, 2-letter minimum,
 
   # Retired on 15.6.21:
   #   Because: it matches Australia-
-  #   PATTERN = /[\W]([A-Z][a-zA-Z0-9&-+]*[A-Z0-9+-](s)?)[\W]/ # liberal, 2-letter minimum, 
+  #   PATTERN = /[\W]([A-Z][a-zA-Z0-9&-+]*[A-Z0-9+-](s)?)[\W]/ # liberal, 2-letter minimum,
 
   # Failing on 24.6.21:
   #   Because: IS-LM shows up as "IS" and "LM" separately
@@ -91,7 +91,7 @@ class Document < ActiveRecord::Base
 
   # 24.6.21: Hyphen has been cut out completely, inside and at end
   # so IS-LM picks up IS and LM separately
-  PATTERN = /[\W]([A-Z][a-zA-Z0-9\&\+]*[A-Z][0-9\+]*(s)?)[\W]/ # liberal, 2-letter minimum, must start with letter and have another capital before the "end junk", which can only contain numbers/pluses (to avoid camelcase)
+  PATTERN = /[\W](?<acronym>[A-Z][a-zA-Z0-9\&\+]*[A-Z][0-9\+]*(?<plural>s)?)[\W]/ # liberal, 2-letter minimum, must start with letter and have another capital before the "end junk", which can only contain numbers/pluses (to avoid camelcase)
 
   #pattern = /\b([A-Z][A-z,0-9,&-]*[A-Z,0-9](s)?)\b/ # liberal, 2-letter minimum, must starwith letter
   ################################################################
@@ -113,38 +113,47 @@ class Document < ActiveRecord::Base
     @@pathcronym_log.error ac
   end
 
-  def trawl
-    # By this point the files have been moved to their final location in uploads/document/file/xxx
-    
-    # Grab the text version of this document
-    text = File.readlines(self.file.versions[:text].file.file).join
-    
-    # Do stuff each time an acronym is found in the code
-    text.scan(PATTERN) do |ac|
-      # pattern contains groups (with parentheses), so ac will be an array (0: whole match, 1: plural 's')
-      # This will be just the s if it exists
-      # This means that the acronym list will contain
-      #   TOR
-      #   s
-      # if TORs is matched
+  # Can pass text in (for testing) or will use the text version of this document
+  # Yields acronym, plursal, context_before, context_after for each
+  def each_acronym(source_text=nil)
+    source_text ||= File.readlines(self.file.versions[:text].file.file).join
 
-      # If a plural has been found, record the singular in initialism, but remember (temporarily) that this was a plural so that we can record the definition differently
+    text.scan(PATTERN) do |ac|
+      # pattern contains groups (with parentheses), so ac will be an array
+      # This means that the acronym list will contain
+      #   a[0]: TOR
+      #   a[1]: s
+      # if TORs is matched
+      acronym = ac[0]
+      raise StandardError "Regex failure" unless ac[1] == 's' or ac[1] == nil
       plural = (ac[1] == 's')
+
+      # $~ : The MatchData instance of the last match. Thread and scope local.
+      #      MAGIC
+      raise StandardError "No regex match (acronym=#{acronym.to_s})" if !$~
+      match_index = $~.offset(:acronym)  # => e.g. [65, 73]
+
+      context = get_context_by_index(match_index, text)
+
+      yield acronym, plural, context # context is a 2-element struct, see above
+    end
+    self
+  end
+
+  def trawl
+    # By this point the files have been moved to their final location in
+    # uploads/document/file/xxx
+
+    # Do stuff each time an acronym is found in the code
+    each_acronym do |acronym, plural, context|
       singular = !plural
-      # initialism_as_found includes a plural so that when displayed alongside the saved context the text still makes sense
+
+      # TODO: initialism_as_found includes a plural so that when displayed alongside the saved context the text still makes sense
       initialism_as_found = ac[0]
 
-      binding.pry if !$~
-      match_index = $~.offset(0)
-      # => [65, 73]
+      existing_record = self.acronyms.where(initialism: acronym).first # nil if none
 
-      # ac ceeases to be an array at this point:
-      ac = ac[0]
-      ac = ac[0...-1] if ac[-1] == 's'
-
-      existing_record = self.acronyms.where(initialism: ac).first # nil if none
-
-      # To do (here and above):
+      # TODO: (here and above):
       #   Allow rescanning with different parsing options:
       #    ending in s (TORs)
       #    internal lower case (AusAID)
@@ -187,48 +196,21 @@ class Document < ActiveRecord::Base
       #  Highlight if acronyms appear in singular and plural
       #  Only list singular acronyms (i.e. if TORs appear in text, list TOR in list)
 
-      ############################################################################################
-      # Create chunks of CONTEXT for various purposes -- NOW REFACTORED
-      ############################################################################################
-      # Use the first bracketed occurance, if it exists; otherwise, the first occurance
-      # [Note that this is the same whether this is the first or tenth time this acronym has
-      # been fount (EXCEPT FOR PLURALS), so no need to repeat this]
-      #location_of_bracketed = (text =~ /\(#{ac}\)/)
-      ## Does the text contain the acronym in brackets anywhere?
-      #bracketed = !!location_of_bracketed
-      #index = if bracketed
-      #  location_of_bracketed
-      #else
-      #  text =~ /\b#{ac}\b/
-      #end
-      #
-      #raise "#{ac} not found" unless index
-      ## TODO:
-      ## Now there is a glitch when the ac length is incorrectly measured because it is(n't) bracketed
-      ## e.g.: Adopt, Adapt, Expand, Respond AAERR) framework. This provides a way of
-      ##                                         ==
-      #start = (index - CONTEXT) < 0 ? 0 : index - CONTEXT
-      #finish = (index + CONTEXT) > text.length ? text.length : index + CONTEXT
-      #context_before = text[start...index] # used for display
-      #context_after  = text[(index+ac.length)...finish] # display
-
       # TODO: This is getting either first bracketed use or first use each time --
       # so the same piece of context is being scanned every time the acronym crops up
 
-      #context = get_early_context(initialism_as_found, text)
-      context = get_context_by_index(match_index, text)
-      #############################################################################################
-
-      ############################################################################################
+      ##########################################################################
       # MEANING
-      ############################################################################################
+      ##########################################################################
+      # TODO: refactor this
+      ##########################################################################
       # If the acronym appears in brackets, then try to figure out what it might mean
       # Stuff that gets in the way:
       #   incidental words, e.g. Business Environment for Economic Development
       #   punctuation, e.g. Adopt, Adapt, Expand, Respond; ministries, departments and agencies
       #   apostrophes, e.g. women's economic empowerment
       #   utter stupidity, e.g. making markets work for the poor
-      ############################################################################################
+      ##########################################################################
       # Perhaps this should be done on display rather on "trawl" --
       # then the dictionary can be changed after the document has been uploaded
       # Perhaps better for "meaning" not to be a db field of an acronym but a pseudo
@@ -242,9 +224,9 @@ class Document < ActiveRecord::Base
         nil
       end
 
-      ############################################################################################
+      ##########################################################################
       # CREATE OR CHANGE ACRONYM
-      ############################################################################################
+      ##########################################################################
       # If the meaning has been learnt from the text, it is put into the database
       # If not, when the list is displayed, we'll try and match it with the chosen dictionary
       #stored_ac = self.acronyms.where(initialism: ac) # will be [] if not defined
@@ -252,7 +234,7 @@ class Document < ActiveRecord::Base
         # TODO: if context stored is plural and we've found a singular, then replace
         #stored_ac = stored_ac.first
         # Get out of here unless we have somethign to add, which could be
-        #  * a definition if 
+        #  * a definition if
         #     - defined_in_plural_only and singular, OR
         #     - not defined
         #  * a singular listing if plural_only
@@ -264,8 +246,8 @@ class Document < ActiveRecord::Base
           updates[:plural_only] = false
         end
         if meaning.present? &&
-          ( 
-            !existing_record.meaning || 
+          (
+            !existing_record.meaning ||
             ( singular && existing_record.defined_in_plural )
           )
           updates[:meaning] = meaning
@@ -277,7 +259,7 @@ class Document < ActiveRecord::Base
         existing_record.update( updates )
       else
         self.acronyms.push Acronym.create(
-          initialism: ac, context_before: context.before, context_after: context.after, bracketed: bracketed?(initialism_as_found, text),
+          initialism: acronym, context_before: context.before, context_after: context.after, bracketed: bracketed?(initialism_as_found, text),
             bracketed_on_first_use: bracketed_on_first_use?(initialism_as_found, text),
             meaning: meaning, plural_only: plural, defined_in_plural:
               ( plural && meaning.present? )
@@ -285,26 +267,13 @@ class Document < ActiveRecord::Base
       end
       ############################################################################################
     end
-
-    # acronyms.uniq!
-    # acronyms.sort!
-
-    # Find out which acronyms first appear in brackets
-    # acronyms.each do |ac|
-    #   if options.mark_undefined
-    #     star = text.match(/\(#{ac}\)/) ? '' : '*'
-    #   else
-    #     star = ''
-    #   end
-    #   puts "#{ac}#{star}"
-    # end
   end
 
   def find_first(search_text)
     search_text =~ PATTERN
     $1
   end
-  
+
   # acronyms returns everything, this filters with document settings
   def allowed_acronyms
     acronyms.select {|ac| ac.allowed? }
@@ -371,7 +340,7 @@ class Document < ActiveRecord::Base
 
   def get_early_context(ac, text)
     index = get_index(ac, text) # returns char 2 before acronym if bracketed
-    
+
     raise "Acronym #{ac} not re-found in the text document" unless index
 
     start = (index - CONTEXT) < 0 ? 0 : index - CONTEXT
