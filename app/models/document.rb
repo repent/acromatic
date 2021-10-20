@@ -118,7 +118,7 @@ class Document < ActiveRecord::Base
   def each_acronym(source_text=nil)
     source_text ||= File.readlines(self.file.versions[:text].file.file).join
 
-    text.scan(PATTERN) do |ac|
+    source_text.scan(PATTERN) do |ac|
       # pattern contains groups (with parentheses), so ac will be an array
       # This means that the acronym list will contain
       #   a[0]: TOR
@@ -133,7 +133,7 @@ class Document < ActiveRecord::Base
       raise StandardError "No regex match (acronym=#{acronym.to_s})" if !$~
       match_index = $~.offset(:acronym)  # => e.g. [65, 73]
 
-      context = get_context_by_index(match_index, text)
+      context = get_context_by_index(match_index, source_text)
 
       yield acronym, plural, context # context is a 2-element struct, see above
     end

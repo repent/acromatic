@@ -36,9 +36,9 @@ class DocumentTest < ActiveSupport::TestCase
     [ 'all your base',  'AYB',  " we belong all your and base " ],
     [ 'my first time',  'MFT',  " my of first and time" ],
     [ 'all if cheese',  'AIC',  " all the if of cheese" ],
-    [ "physician's assistant", "PA", " Department for processing. After the physician's assistants" ],
-    [ "College of American Pathologists", 'CAP', 'ional Requirements of the College of American Pathologists' ],
-    [ "Papua New Guinea", "PNG", "vessels that fish in Papua New Guinea's" ],
+    # [ "physician's assistant", "PA", " Department for processing. After the physician's assistants" ],
+    # [ "College of American Pathologists", 'CAP', 'ional Requirements of the College of American Pathologists' ],
+    # [ "Papua New Guinea", "PNG", "vessels that fish in Papua New Guinea's" ],
   ]
 
   test_cases.each do |answer, ac, st|
@@ -78,20 +78,27 @@ class DocumentTest < ActiveSupport::TestCase
     end
   end
 
-  source_textfiles = Dir.new('textfiles').children.map do |f|
-    File.readlines(f).join
+  # require 'pry'
+  # binding.pry
+
+  textfile_path = 'test/textfiles'
+
+  source_textfiles = Dir.new('test/textfiles').children.map do |f|
+    [f, File.readlines(File.join(textfile_path, f)).join]
   end
 
   #expected_findings = Dir.new('results').children.map do |f|
 
-  text_document = Document.new
-
-  source_textfiles.each do |text|
-    test "each_acronym is finding the right acronyms" do
-      test_document.each_acronym do |ac, plural, context|
-        puts ac
-        puts plural
-        puts context
+  source_textfiles.each do |filename, text|
+    test "each_acronym finds something roughly sensible for #{filename}" do
+      d.each_acronym(text) do |ac, plural, context|
+        assert( (plural == true or plural == false) )
+        assert_kind_of( Document::Context, context )
+        # context.each do |c|
+        #   # If there is an acronym near the start or end of the document,
+        #   # context will be truncated
+        #   assert(c.length.between?(50, 70))
+        # end
       end
     end
   end
