@@ -45,7 +45,7 @@ gem 'redcarpet'
 gem 'pry'
 gem 'pry-rails'
 # gem 'rmagick'
-gem 'mini_magick'
+# gem 'mini_magick'
 
 # User authentication
 gem 'devise'
@@ -70,8 +70,8 @@ group :development do
 
   # Adds detail on the database schema to the top of model descriptions
   # Usage: annotate
-  #gem 'annotate'
-  gem 'annotate_rails'
+  gem 'annotate'
+  #gem 'annotate_rails'
 
   # Use Capistrano for deployment
   #gem 'capistrano-rails'

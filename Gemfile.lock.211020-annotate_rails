@@ -35,9 +35,10 @@ GEM
       minitest (~> 5.1)
       thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
-    annotate (3.1.1)
-      activerecord (>= 3.2, < 7.0)
-      rake (>= 10.4, < 14.0)
+    annotate_rails (0.1.1)
+      activerecord (>= 4.0)
+      activesupport (>= 4.0)
+      rake (>= 10.4)
     arel (6.0.4)
     awesome_print (1.8.0)
     bcrypt (3.1.13)
@@ -197,7 +198,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  annotate
+  annotate_rails
   awesome_print
   byebug
   carrierwave
