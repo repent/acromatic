@@ -64,7 +64,9 @@ class Document < ActiveRecord::Base
   belongs_to :dictionary
   validates :file, presence: true
 
-  CONTEXT = 60
+  CONTEXT = 60.freeze
+  # Document#guess_meanings is a db field
+  MEANING_STRATEGY = :on_first_use.freeze # or :when_missing
 
   Context = Struct.new(:before, :after)
 
@@ -114,7 +116,7 @@ class Document < ActiveRecord::Base
   end
 
   # Can pass text in (for testing) or will use the text version of this document
-  # Yields acronym, plursal, context_before, context_after for each
+  # Yields acronym, plural, context_before, context_after for each
   def each_acronym(source_text=nil)
     source_text ||= File.readlines(self.file.versions[:text].file.file).join
 
@@ -140,14 +142,91 @@ class Document < ActiveRecord::Base
     self
   end
 
-  def trawl
+  def trawl(source_text=nil)
     # By this point the files have been moved to their final location in
     # uploads/document/file/xxx
 
-    # Do stuff each time an acronym is found in the code
-    each_acronym do |acronym, plural, context|
-      singular = !plural
+    doc_dict = Hash.new
+    acronyms_in_memory = []
 
+    # Do stuff each time an acronym is found in the code
+    each_acronym(source_text) do |acronym, plural, context|
+
+      # NEW VERSION (incomplete)
+
+      singular = !plural
+      acronym_as_found = plural ? "#{acronym}s" : acronym
+
+      next if doc_dict.has_key?(acronym) and MEANING_STRATEGY == :on_first_use
+
+      # other meaning strategies haven't been implemented yet, so getting here means that the
+      # acronym isn't in the list
+
+      meaning = guess_meanings ? get_meaning(acronym, context) : ''
+
+      acronyms_in_memory << Acronym.new(
+        initialism: acronym_as_found,
+        meaning: meaning,
+        plural_only: plural,
+        defined_in_plural: plural,
+        bracketed: bracketed?(initialism_as_found, source_text),
+        bracketed_on_first_use: bracketed_on_first_use?(initialism_as_found, source_text),
+      )
+    end
+
+    # merge plurals/singulars (method)
+    remove_superfluous_plurals!(acronyms_in_memory)
+
+    # write acronyms to database
+    acronyms_in_memory.each do |acronym|
+      self.acronyms << acronym
+    end
+       Acronym.create(
+        initialism: acronym,
+        context_before: context.before,
+        context_after: context.after,
+        bracketed: bracketed?(initialism_as_found, text),
+        bracketed_on_first_use: bracketed_on_first_use?(initialism_as_found, text),
+        meaning: meaning,
+        plural_only: plural,
+        defined_in_plural: plural && meaning.present? )
+
+    # look up meaningless acronyms in dictionary (when viewed)
+  end
+
+  private
+
+  # Merge plural data into singular wherever possible
+  # Modifies hash in place
+  def remove_superfluous_plurals!(acronym_hash)
+    acronym_hash.select { |k, _| k =~ /s$/ }.each do |k, v|
+      singular = k.chop
+      if acronym_hash[singular]
+        acronym_hash[singular] = merge_singular_and_plural(acronym_hash[singular], acronym_hash[k])
+        acronym_hash[k].delete
+      end
+    end
+  end
+
+  # -> Acronym (of singular)
+  def merge_singular_and_plural(singular, plural)
+    if plural.meaning.present? and !singular.meaning.present?
+      singular.meaning = plural.meaning
+      singular.defined_in_plural = true
+    end
+    singular
+  end
+
+  public
+
+  # Deprecated
+  def old_trawl(source_text)
+    # Do stuff each time an acronym is found in the code
+
+    each_acronym(source_text) do |acronym, plural, context|
+      # OLD VERSION (working)
+
+      singular = !plural
       # TODO: initialism_as_found includes a plural so that when displayed alongside the saved context the text still makes sense
       initialism_as_found = ac[0]
 
@@ -372,7 +451,8 @@ class Document < ActiveRecord::Base
   public # for testing
 
   # get_meaning singularises ac before digging
-  def get_meaning(ac, previous_text)
+  def get_meaning(ac, context)
+    previous_text = context.before
     # If ac is plural, then kill the final s before searching for the longhand
     # because MDAs doesn't expand as M*** D** A***** S**.
     incidentals = %W( for in of and the a an )

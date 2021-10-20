@@ -41,10 +41,26 @@ class DocumentTest < ActiveSupport::TestCase
     # [ "Papua New Guinea", "PNG", "vessels that fish in Papua New Guinea's" ],
   ]
 
+  # get_meaning (private) has changed (context is now an object not a string);
+  # this is the old behaviour:
+
+  # test_cases.each do |answer, ac, st|
+  #   # 6.21: incidentals = %W( for in of and )
+  #   test "infer meaning of acronym #{ac} from text" do
+  #     assert_equal answer, d.get_meaning( ac, st )
+  #   end
+  #   # assert_equal 'all about cows', d.get_meaning('AAC', "I am all about cows ")
+  #   # assert_equal 'on the run', d.get_meaning('OTR', "everyone is on the run")
+  #   # assert_equal 'all your base', d.get_meaning('AYB', " we belong all your and base ")
+  #   # assert_equal 'my first time', d.get_meaning('MFT', " my of first and time")
+  #   # assert_equal 'all if cheese', d.get_meaning('AIC', " all the if of cheese")
+  # end
+
   test_cases.each do |answer, ac, st|
     # 6.21: incidentals = %W( for in of and )
     test "infer meaning of acronym #{ac} from text" do
-      assert_equal answer, d.get_meaning( ac, st )
+      context = Document::Context.new(st, '')
+      assert_equal answer, d.get_meaning( ac, context )
     end
     # assert_equal 'all about cows', d.get_meaning('AAC', "I am all about cows ")
     # assert_equal 'on the run', d.get_meaning('OTR', "everyone is on the run")
