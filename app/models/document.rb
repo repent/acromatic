@@ -70,40 +70,16 @@ class Document < ActiveRecord::Base
 
   Context = Struct.new(:before, :after)
 
-  ################################################################
+  ##################################################################################################
   # The Pattern
-  #pattern = /\b[A-Z]{2,}\b/ # restrictive
-  #pattern = /\b([A-Z,0-9][A-z,0-9,-]+[A-Z,0-9](s)?)\b/ # liberal, 3-letter minimum, can starwith number
-  # don't need the \b, knowing that the char inside is \w
-  # /[\W]([A-Z][A-z,0-9,&-+]*[A-Z,0-9+-](s)?)[\W]/ fails -- the comma counts
-
+  ##################################################################################################
   # Note that A-z includes square brackets
-
-  # Retired on 15.6.21:
-  #   Because: it matches R[E
-  #   PATTERN = /[\W]([A-Z][A-z0-9&-+]*[A-Z0-9+-](s)?)[\W]/ # liberal, 2-letter minimum,
-
-  # Retired on 15.6.21:
-  #   Because: it matches Australia-
-  #   PATTERN = /[\W]([A-Z][a-zA-Z0-9&-+]*[A-Z0-9+-](s)?)[\W]/ # liberal, 2-letter minimum,
-
-  # Failing on 24.6.21:
-  #   Because: IS-LM shows up as "IS" and "LM" separately
-  #   PATTERN = /[\W]([A-Z][a-zA-Z0-9&-+]*[A-Z][0-9+-]?(s)?)[\W]/ # liberal, 2-letter minimum, must
-  #   start with letter and have another capital before the end junk
-
-  # Retired on 20.10.21:
-  #   Because: refactoring is using named acronyms and finding the plural as ac[0] as documented
-  #   24.6.21: Hyphen has been cut out completely, inside and at end
-  #   so IS-LM picks up IS and LM separately
-  #   PATTERN = /[\W]([A-Z][a-zA-Z0-9\&\+]*[A-Z][0-9\+]*(s)?)[\W]/ # liberal, 2-letter minimum,
-  #   must start with letter and have another capital before the "end junk", which can only contain numbers/pluses (to avoid camelcase)
 
   # 20.10.21: named groups have been added, and the first one is exclusive of the plural
   PATTERN = /[\W](?<acronym>[A-Z][a-zA-Z0-9\&\+]*[A-Z][0-9\+]*)(?<plural>s)?[\W]/ # liberal, 2-letter minimum, must start with letter and have another capital before the "end junk", which can only contain numbers/pluses (to avoid camelcase)
 
   #pattern = /\b([A-Z][A-z,0-9,&-]*[A-Z,0-9](s)?)\b/ # liberal, 2-letter minimum, must starwith letter
-  ################################################################
+  ##################################################################################################
 
   # # There are better ways of doing this with callbacks but the kludgy way we're creating a text
   # # version of the file makes it not obvious where to do this
@@ -227,134 +203,134 @@ class Document < ActiveRecord::Base
 
   public
 
-  # Deprecated
-  def old_trawl(source_text)
-    # Do stuff each time an acronym is found in the code
-
-    each_acronym(source_text) do |acronym, plural, context|
-      # OLD VERSION (working)
-
-      singular = !plural
-      # TODO: initialism_as_found includes a plural so that when displayed alongside the saved context the text still makes sense
-      initialism_as_found = ac[0]
-
-      existing_record = self.acronyms.where(initialism: acronym).first # nil if none
-
-      # TODO: (here and above):
-      #   Allow rescanning with different parsing options:
-      #    ending in s (TORs)
-      #    internal lower case (AusAID)
-      #    internal hyphen (BIG-T)
-      #    numbers (BICF2)
-
-      # First check: does this already exist?  If so, skip.
-      #   If it exists, and has meaning, skip
-      #   If it exists but has no meaning, tough -- this will have been searched for the first
-      #   time it showed up
-      #   So, if it exists, skip
-
-      # SKIP if already recorded with meaning
-      # TODO: something different if the plural has previously been found, but we now find a singular definition
-      # There should now only ever be one instance of this ac in self.acronyms
-      # SKIP if
-      #   * ac already exists, AND
-      #   * there is a singular definition OR this is a plural
-
-      # Continue if this is a new acronym, or the existing entry doesn't have the kind of
-      # definition that we have: plural if there is no definition or singular if there is
-      # no definition or only a plural one (singular definition assumed to be preferred)
-      next if
-        # the acronym already exists, AND
-        existing_record &&
-        (
-          # This is plural and there is already ANY definition recorded, OR
-          ( plural && existing_record.meaning ) ||
-          # This is singular and there is already a SINGULAR definition
-          ( singular && !existing_record.defined_in_plural && existing_record.meaning )
-        )
-
-      # FROM NOW ON: this acronym doesn't exist or lacks the appropriate meaning.
-      # Safe to overwrite the meaning as long as you're not overwriting it with nil (or you could overwrite a plural meaning with a null singular one)
-
-      # TODO: Plurals are an arse
-      # May want to:
-      #  Highlight if there are acronyms that are otherwise identical but different case
-      #    (suggests mistake)
-      #  Highlight if acronyms appear in singular and plural
-      #  Only list singular acronyms (i.e. if TORs appear in text, list TOR in list)
-
-      # TODO: This is getting either first bracketed use or first use each time --
-      # so the same piece of context is being scanned every time the acronym crops up
-
-      ##########################################################################
-      # MEANING
-      ##########################################################################
-      # TODO: refactor this
-      ##########################################################################
-      # If the acronym appears in brackets, then try to figure out what it might mean
-      # Stuff that gets in the way:
-      #   incidental words, e.g. Business Environment for Economic Development
-      #   punctuation, e.g. Adopt, Adapt, Expand, Respond; ministries, departments and agencies
-      #   apostrophes, e.g. women's economic empowerment
-      #   utter stupidity, e.g. making markets work for the poor
-      ##########################################################################
-      # Perhaps this should be done on display rather on "trawl" --
-      # then the dictionary can be changed after the document has been uploaded
-      # Perhaps better for "meaning" not to be a db field of an acronym but a pseudo
-      # built on demand from the current dictionary
-      #meaning = dictionary ? dictionary.lookup(ac) : nil
-
-      meaning = if bracketed?(initialism_as_found, text) and guess_meanings
-        # TODO: this seems to get called multiple times (5-10) during the same run
-        get_meaning(initialism_as_found, context.before.chomp('(').rstrip)
-      else
-        nil
-      end
-
-      ##########################################################################
-      # CREATE OR CHANGE ACRONYM
-      ##########################################################################
-      # If the meaning has been learnt from the text, it is put into the database
-      # If not, when the list is displayed, we'll try and match it with the chosen dictionary
-      #stored_ac = self.acronyms.where(initialism: ac) # will be [] if not defined
-      if existing_record
-        # TODO: if context stored is plural and we've found a singular, then replace
-        #stored_ac = stored_ac.first
-        # Get out of here unless we have somethign to add, which could be
-        #  * a definition if
-        #     - defined_in_plural_only and singular, OR
-        #     - not defined
-        #  * a singular listing if plural_only
-        #next unless meaning
-        # The appropriate meaning should be nil
-        #raise "ASSERT: definition should be nil" if (plural && stored_ac.plural_meaning) || (!plural && stored_ac.meaning)
-        updates = {}
-        if singular
-          updates[:plural_only] = false
-        end
-        if meaning.present? &&
-          (
-            !existing_record.meaning ||
-            ( singular && existing_record.defined_in_plural )
-          )
-          updates[:meaning] = meaning
-        end
-        if singular && meaning.present?
-          updates[:defined_in_plural] = false
-        end
-
-        existing_record.update( updates )
-      else
-        self.acronyms.push Acronym.create(
-          initialism: acronym, context_before: context.before, context_after: context.after, bracketed: bracketed?(initialism_as_found, text),
-            bracketed_on_first_use: bracketed_on_first_use?(initialism_as_found, text),
-            meaning: meaning, plural_only: plural, defined_in_plural:
-              ( plural && meaning.present? )
-          )
-      end
-      ############################################################################################
-    end
-  end
+  # # Deprecated
+  # def old_trawl(source_text)
+  #   # Do stuff each time an acronym is found in the code
+  #
+  #   each_acronym(source_text) do |acronym, plural, context|
+  #     # OLD VERSION (working)
+  #
+  #     singular = !plural
+  #     # TODO: initialism_as_found includes a plural so that when displayed alongside the saved context the text still makes sense
+  #     initialism_as_found = ac[0]
+  #
+  #     existing_record = self.acronyms.where(initialism: acronym).first # nil if none
+  #
+  #     # TODO: (here and above):
+  #     #   Allow rescanning with different parsing options:
+  #     #    ending in s (TORs)
+  #     #    internal lower case (AusAID)
+  #     #    internal hyphen (BIG-T)
+  #     #    numbers (BICF2)
+  #
+  #     # First check: does this already exist?  If so, skip.
+  #     #   If it exists, and has meaning, skip
+  #     #   If it exists but has no meaning, tough -- this will have been searched for the first
+  #     #   time it showed up
+  #     #   So, if it exists, skip
+  #
+  #     # SKIP if already recorded with meaning
+  #     # TODO: something different if the plural has previously been found, but we now find a singular definition
+  #     # There should now only ever be one instance of this ac in self.acronyms
+  #     # SKIP if
+  #     #   * ac already exists, AND
+  #     #   * there is a singular definition OR this is a plural
+  #
+  #     # Continue if this is a new acronym, or the existing entry doesn't have the kind of
+  #     # definition that we have: plural if there is no definition or singular if there is
+  #     # no definition or only a plural one (singular definition assumed to be preferred)
+  #     next if
+  #       # the acronym already exists, AND
+  #       existing_record &&
+  #       (
+  #         # This is plural and there is already ANY definition recorded, OR
+  #         ( plural && existing_record.meaning ) ||
+  #         # This is singular and there is already a SINGULAR definition
+  #         ( singular && !existing_record.defined_in_plural && existing_record.meaning )
+  #       )
+  #
+  #     # FROM NOW ON: this acronym doesn't exist or lacks the appropriate meaning.
+  #     # Safe to overwrite the meaning as long as you're not overwriting it with nil (or you could overwrite a plural meaning with a null singular one)
+  #
+  #     # TODO: Plurals are an arse
+  #     # May want to:
+  #     #  Highlight if there are acronyms that are otherwise identical but different case
+  #     #    (suggests mistake)
+  #     #  Highlight if acronyms appear in singular and plural
+  #     #  Only list singular acronyms (i.e. if TORs appear in text, list TOR in list)
+  #
+  #     # TODO: This is getting either first bracketed use or first use each time --
+  #     # so the same piece of context is being scanned every time the acronym crops up
+  #
+  #     ##########################################################################
+  #     # MEANING
+  #     ##########################################################################
+  #     # TODO: refactor this
+  #     ##########################################################################
+  #     # If the acronym appears in brackets, then try to figure out what it might mean
+  #     # Stuff that gets in the way:
+  #     #   incidental words, e.g. Business Environment for Economic Development
+  #     #   punctuation, e.g. Adopt, Adapt, Expand, Respond; ministries, departments and agencies
+  #     #   apostrophes, e.g. women's economic empowerment
+  #     #   utter stupidity, e.g. making markets work for the poor
+  #     ##########################################################################
+  #     # Perhaps this should be done on display rather on "trawl" --
+  #     # then the dictionary can be changed after the document has been uploaded
+  #     # Perhaps better for "meaning" not to be a db field of an acronym but a pseudo
+  #     # built on demand from the current dictionary
+  #     #meaning = dictionary ? dictionary.lookup(ac) : nil
+  #
+  #     meaning = if bracketed?(initialism_as_found, text) and guess_meanings
+  #       # TODO: this seems to get called multiple times (5-10) during the same run
+  #       get_meaning(initialism_as_found, context.before.chomp('(').rstrip)
+  #     else
+  #       nil
+  #     end
+  #
+  #     ##########################################################################
+  #     # CREATE OR CHANGE ACRONYM
+  #     ##########################################################################
+  #     # If the meaning has been learnt from the text, it is put into the database
+  #     # If not, when the list is displayed, we'll try and match it with the chosen dictionary
+  #     #stored_ac = self.acronyms.where(initialism: ac) # will be [] if not defined
+  #     if existing_record
+  #       # TODO: if context stored is plural and we've found a singular, then replace
+  #       #stored_ac = stored_ac.first
+  #       # Get out of here unless we have somethign to add, which could be
+  #       #  * a definition if
+  #       #     - defined_in_plural_only and singular, OR
+  #       #     - not defined
+  #       #  * a singular listing if plural_only
+  #       #next unless meaning
+  #       # The appropriate meaning should be nil
+  #       #raise "ASSERT: definition should be nil" if (plural && stored_ac.plural_meaning) || (!plural && stored_ac.meaning)
+  #       updates = {}
+  #       if singular
+  #         updates[:plural_only] = false
+  #       end
+  #       if meaning.present? &&
+  #         (
+  #           !existing_record.meaning ||
+  #           ( singular && existing_record.defined_in_plural )
+  #         )
+  #         updates[:meaning] = meaning
+  #       end
+  #       if singular && meaning.present?
+  #         updates[:defined_in_plural] = false
+  #       end
+  #
+  #       existing_record.update( updates )
+  #     else
+  #       self.acronyms.push Acronym.create(
+  #         initialism: acronym, context_before: context.before, context_after: context.after, bracketed: bracketed?(initialism_as_found, text),
+  #           bracketed_on_first_use: bracketed_on_first_use?(initialism_as_found, text),
+  #           meaning: meaning, plural_only: plural, defined_in_plural:
+  #             ( plural && meaning.present? )
+  #         )
+  #     end
+  #     ############################################################################################
+  #   end
+  # end
 
   def find_first(search_text)
     search_text =~ PATTERN
@@ -397,14 +373,9 @@ class Document < ActiveRecord::Base
 
   def location_of_first_use(ac, text)
     # Rescuing this error doesn't currently help, just obscurs where the error is
-    # begin
     # \W: any non-word character
     loc = ( text =~ /\W#{escape(ac)}\W/ )
     return loc+1
-    # rescue RegexpError => e
-    #   log_pathcronym(ac)
-    #   nil
-    # end
   end
 
   def get_index(ac, text)

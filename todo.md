@@ -1,0 +1,4 @@
+ - Ensure dictionary lookup is happening in refactor
+ - Create simple testing for a dictionary/document pair to ensure lookups
+ - Bump to rails 6
+ - Play with guess_meaning()
