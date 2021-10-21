@@ -16,6 +16,8 @@ gem 'sqlite3', '~> 1.4'
 gem 'sass-rails', '>= 6'
 # After 2.1.0, sassc requires binaries to be compiled on the server; colin ran out of memory doing
 # this
+# https://github.com/sass/sassc-ruby/issues/189
+# https://github.com/sass/sassc-ruby/issues/204
 gem 'sassc', '= 2.1.0'
 
 # New in 6:
