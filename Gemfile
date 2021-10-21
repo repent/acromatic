@@ -38,11 +38,11 @@ gem 'bootsnap', '>= 1.4.4', require: false
 # No longer used in Rails 6.0, may not be necessary:
 
 # Use jquery as the JavaScript library
-# gem 'jquery-rails'
+gem 'jquery-rails'
 # Use Uglifier as compressor for JavaScript assets
 # gem 'uglifier'
 # Use CoffeeScript for .coffee assets and views
-# gem 'coffee-rails'
+gem 'coffee-rails'
 # See https://github.com/rails/execjs#readme for more supported runtimes
 # gem 'therubyracer', platforms: :ruby
 
