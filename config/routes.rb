@@ -24,5 +24,6 @@ Rails.application.routes.draw do
   root 'documents#new'
 
   # Static content
-  get ':action' => 'static#:action'
+  # get ':action' => 'static#:action'
+  get 'about' => 'static#about'
 end
