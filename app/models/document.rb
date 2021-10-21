@@ -151,6 +151,7 @@ class Document < ActiveRecord::Base
       # other meaning strategies haven't been implemented yet, so getting here means that the
       # acronym isn't in the list
 
+      # get_meaning also handles logging failures
       meaning = guess_meanings ? get_meaning(acronym, context) : ''
 
       doc_dict[initialism_as_found] = Acronym.new(

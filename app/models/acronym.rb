@@ -18,17 +18,10 @@
 
 # to refresh run annotate
 
-#  initialism is always singular
-
-# Current master regexp (see Document model):
-#   pattern = /\b([A-Z][A-z,0-9,-]*[A-Z,0-9](s)?)\b/ # liberal, 2-letter minimum, must start with
-#                                                  letter, must end with capital or number (or s)
-
 class Acronym < ActiveRecord::Base
   belongs_to :document
   include Comparable
 
-  #Roman = Struct.new(:letter, :int)
   ROMAN_MAP = { 1000 => 'M' ,
                  900 => 'CM',
                  500 => 'D' ,
@@ -42,14 +35,14 @@ class Acronym < ActiveRecord::Base
                    5 => 'V' ,
                    4 => 'IV',
                    1 => 'I',
-              }
+              }.freeze
   ROMAN_NUMERALS = Array.new(3999) do |index|
     target = index + 1
     ROMAN_MAP.keys.sort { |a,b| b <=> a }.inject("") do |roman, div|
       times, target = target.divmod(div)
       roman << ROMAN_MAP[div] * times
     end
-  end
+  end.freeze
 
   # def initialize ac, context, bracketed, bracketed_on_first_use
     # @acronym,@context,@bracketed,@bracketed_on_first_use = ac,context,bracketed,bracketed_on_first_use
@@ -65,7 +58,7 @@ class Acronym < ActiveRecord::Base
   # A pseudo-field, generated on demand using the current dictionary
   # ...if not available
   def find_meaning
-    return meaning if meaning
+    return meaning unless meaning.blank? # '' or nil
     if document and document.dictionary
       document.dictionary.lookup(initialism)
     else
@@ -77,9 +70,13 @@ class Acronym < ActiveRecord::Base
   end
 
   def mixedcase?
+    !!(self.initialism.chomp('s') =~ /[a-z]/)
+
+    # OLD: initialism used to be guaranteed singular, that is not the case any more and it
+    # would be better for this method not to care anyway
     # initialism is always singular, even if the acronym does not appear in singular
     # so this test does not need to worry about a trailing s; this should never be present
-    !!(self.initialism =~ /[a-z]/)
+    # !!(self.initialism =~ /[a-z]/)
 
     # OLD: (trying to cope with potential plurals)
     # Either a non-s lower case letter or an s followed by another character
@@ -151,7 +148,9 @@ class Acronym < ActiveRecord::Base
 
   def roman_to_i(roman)
     raise "Invalid roman numeral" unless roman =~ /^[IVXLCDM]+$/
-    level = 1000 # We're particularly interested in catching errors; check big numbers don't show up after small ones
+    # We're particularly interested in catching errors; check big numbers don't show up after small
+    # ones
+    level = 1000
     i = 0
     ROMAN.each do |l|
       if roman =~ /^#{l.letter}(.*)$/
@@ -168,7 +167,4 @@ class Acronym < ActiveRecord::Base
   def singular
     initialism[-1] == 's' ? initialism[0...-1] : initialism
   end
-  #def find_definition_of(ac)
-  #  search_term = Regexp.new
-  #end
 end
