@@ -14,6 +14,9 @@ gem 'sqlite3', '~> 1.4'
 #gem 'mysql2'
 # Use SCSS for stylesheets
 gem 'sass-rails', '>= 6'
+# After 2.1.0, sassc requires binaries to be compiled on the server; colin ran out of memory doing
+# this
+gem 'sassc', '= 2.1.0'
 
 # New in 6:
 # Use Puma as the app server
