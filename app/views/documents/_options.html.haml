@@ -7,7 +7,7 @@
     %td= f.label :allow_plurals
   %tr
     %td= f.check_box :allow_hyphens
-    %td= f.label :allow_hyphens_and_ampersands
+    %td= f.label :allow_ampersands
   %tr
     %td= f.check_box :allow_numbers
     %td= f.label :allow_numbers
@@ -17,9 +17,10 @@
   %tr
     %td= f.check_box :exclude_roman
     %td= f.label :exclude_roman, "Exclude roman numerals"
-  %tr
-    %td= f.check_box :guess_meanings
-    %td= f.label :guess_meanings, "Infer meanings from text (beta)"
+  - if guess_meanings
+    %tr
+      %td= f.check_box :guess_meanings
+      %td= f.label :guess_meanings, "Infer meanings from text (beta)"
 
 = f.label :dictionary, "Select predefined dictionary (optional)"
 = f.collection_select(:dictionary_id, Dictionary.order(:name), :id, :name, include_blank: true)

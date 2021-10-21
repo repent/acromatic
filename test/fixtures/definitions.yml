@@ -19,3 +19,46 @@ one:
 two:
   dictionary_id: 
   initialism: MyString
+
+ausaid:
+  initialism: AusAID
+  meaning: Australian Aid Agency
+bicf2:
+  initialism: BICF2
+  meaning: Banglandesh something something
+imf:
+  initialism: IMF
+  meaning: International Montetary Fund
+iotc:
+  initialism: IOTC
+  meaning: Indian Ocean Tuna Commission
+nat:
+  initialism: NAT
+  meaning: Network address translation
+nato:
+  initialism: NATO
+  meaning: North Atlantic Treaty Organisation
+pacer:
+  initialism: PACER+
+  meaning: The good stuff
+pics:
+  initialism: PICs
+  meaning: Pacific Island Countries
+sdt:
+  initialism: S&DT
+  meaning: Special and differential treatment
+text2win:
+  initialism: TEXT2WIN
+  meaning: Meh?
+tors:
+  initialism: ToRs
+  meaning: Terms of reference
+uk:
+  initialism: UK
+  meaning: United Kingdom
+us:
+  initialism: US
+  meaning: United States
+usd:
+  initialism: USD
+  meaning: United States dollars

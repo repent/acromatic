@@ -3,11 +3,13 @@
   %thead
     %tr
       %th Name
+      %th Length
       %th{colspan: '3'} Actions
   %tbody
     - @dictionaries.each do |dictionary|
       %tr
         %td= dictionary.name
+        %td= dictionary.definitions.count
         %td= link_to 'Show', dictionary
         %td= link_to 'Edit', edit_dictionary_path(dictionary)
         %td= link_to 'Destroy', dictionary, method: :delete, data: { confirm: 'Are you sure?' }
