@@ -154,6 +154,7 @@ class Document < ActiveRecord::Base
       # get_meaning also handles logging failures
       meaning = guess_meanings ? get_meaning(acronym, context) : ''
 
+      # doc_dict can contain plurals: it may contain both 'TOR' and 'TORs' as keys
       doc_dict[initialism_as_found] = Acronym.new(
         initialism: initialism_as_found,
         meaning: meaning,
@@ -168,6 +169,8 @@ class Document < ActiveRecord::Base
 
     # merge plurals/singulars (method)
     remove_superfluous_plurals!(doc_dict)
+    # after this point there should only be singular initialisms (perhaps with 'plural_only' and
+    # defined_in_plural set)
 
     # write acronyms to database
     doc_dict.each do |_, acronym|
@@ -182,12 +185,15 @@ class Document < ActiveRecord::Base
   # Merge plural data into singular wherever possible
   # Modifies hash in place
   def remove_superfluous_plurals!(acronym_hash)
-    acronym_hash.select { |k, _| k =~ /s$/ }.each do |plural, v|
+    acronym_hash.select { |k, _| k =~ /s$/ }.each do |plural, acronym_object|
       singular = plural.chop
       if acronym_hash[singular]
         acronym_hash[singular] =
           merge_singular_and_plural(acronym_hash[singular], acronym_hash[plural])
         acronym_hash.delete(plural)
+      else
+        # Singular was never found, but the Acronym object still needs to be changed
+        singularize! acronym_object.initialism
       end
     end
   end
@@ -426,6 +432,10 @@ class Document < ActiveRecord::Base
 
   def get_singular(ac) # Get the singular version
     if ac =~ /(.*)s$/ then $1 else ac end
+  end
+
+  def singularize!(ac) # modify in place
+    ac.chomp!('s')
   end
 
   public # for testing
