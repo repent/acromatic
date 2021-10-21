@@ -29,7 +29,7 @@
 # the list, *even if it doesn't appear as a singular in the document*.
 # This is not critical though.
 #
-# Some people use plurals that they wouldn't use in singular, e.g. TORs
+# Some (bad) people use plurals that they wouldn't use in singular, e.g. TORs
 # (meaning terms of reference, rather than multiple sets of terms of
 # reference).  Here they should be listed as plural in the definitions.
 #
@@ -61,7 +61,7 @@
 class Document < ActiveRecord::Base
   mount_uploader :file, FileUploader
   has_many :acronyms
-  belongs_to :dictionary
+  belongs_to :dictionary, optional: true
   validates :file, presence: true
 
   CONTEXT = 60.freeze
