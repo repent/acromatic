@@ -36,22 +36,24 @@ class DocumentsController < ApplicationController
   def create
     begin
       @document = Document.new(document_params)
-    rescue StandardError => e
-      redirect_to(:back, alert: "Document error: #{e.message}") and return
-      binding.pry
-    end
 
-    respond_to do |format|
-      if @document.save
-        format.html do
-          @document.trawl
-          redirect_to @document, notice: 'Document was successfully created.'
+      respond_to do |format|
+        if @document.save
+          format.html do
+            @document.trawl
+            redirect_to @document, notice: 'Document was successfully created.'
+          end
+          format.json { render :show, status: :created, location: @document }
+        else
+          format.html { render :new }
+          format.json { render json: @document.errors, status: :unprocessable_entity }
         end
-        format.json { render :show, status: :created, location: @document }
-      else
-        format.html { render :new }
-        format.json { render json: @document.errors, status: :unprocessable_entity }
       end
+
+    rescue RuntimeError => e # RuntimeError: unknown file type (xxx)
+      @document = Document.new
+      @document.errors.add(:file, e.message)
+      render :new, notice: "Upload failed, unsupported file type"
     end
   end
 
