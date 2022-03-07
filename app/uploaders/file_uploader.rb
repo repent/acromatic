@@ -10,10 +10,10 @@ class FileUploader < CarrierWave::Uploader::Base
   # "Unknown reader: rtf"
   PANDOC_FILETYPES = [
     :docx,
-    # :rtf,
-    :pdf,
+    # :rtf, # DO NOT ENABLE
+    # :pdf, # DO NOT ENABLE
     :odt
-  ]
+  ].freeze
 
   # PANDOC_EXTENSIONS = [
   #   'odt'
@@ -30,7 +30,8 @@ class FileUploader < CarrierWave::Uploader::Base
   end
 
   def extension_white_list
-    %w( docx pdf odt doc html )
+    # %w( docx pdf odt doc html )
+    %w( docx odt )
   end
 
   # Provide a default URL as a default if there hasn't been a file uploaded:
